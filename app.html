@@ -7,62 +7,62 @@
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=DM+Sans:wght@400;500;700&display=swap');
   :root {
-    --ink: #1a2b4a; --ink-soft: #3d5278; --paper: #faf7f0; --paper-line: #e8e0d0;
-    --accent: #2563eb; --accent-warm: #f59e0b; --white: #ffffff; --gray: #6b7280; --green: #15803d; --red: #b91c1c;
+    --ink:#1a2b4a;--ink-soft:#3d5278;--paper:#faf7f0;--paper-line:#e8e0d0;
+    --accent:#2563eb;--accent-warm:#f59e0b;--white:#ffffff;--gray:#6b7280;--green:#15803d;--red:#b91c1c;
   }
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { font-family: 'DM Sans', system-ui, sans-serif; background: var(--paper); color: var(--ink); font-size: 14px; line-height: 1.5; }
-  nav { background: var(--white); border-bottom: 1px solid var(--paper-line); }
-  .nav-inner { display: flex; align-items: center; justify-content: space-between; padding: 14px 24px; max-width: 920px; margin: 0 auto; }
-  .logo { font-family: 'Fraunces', serif; font-size: 20px; font-weight: 700; display: flex; align-items: center; gap: 8px; text-decoration: none; color: var(--ink); }
-  .logo-mark { width: 24px; height: 24px; background: var(--ink); border-radius: 6px; position: relative; }
-  .logo-mark::after { content: ''; position: absolute; inset: 5px 5px auto 5px; height: 2px; background: var(--accent-warm); box-shadow: 0 4px 0 var(--white), 0 7px 0 var(--accent-warm); }
-  .nav-link { color: var(--ink-soft); text-decoration: none; font-size: 14px; font-weight: 500; }
-  .main { max-width: 920px; margin: 28px auto; padding: 0 24px; }
-  .page-title { font-family: 'Fraunces', serif; font-size: 28px; font-weight: 700; margin-bottom: 4px; }
-  .page-sub { color: var(--ink-soft); margin-bottom: 24px; }
-  .card { background: var(--white); border: 1px solid var(--paper-line); border-radius: 14px; padding: 22px; margin-bottom: 16px; }
-  .card-label { display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--ink); margin-bottom: 16px; }
-  .card-num { width: 22px; height: 22px; background: var(--ink); color: var(--white); border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; }
-  .row { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; flex-wrap: wrap; }
-  .row label { font-size: 14px; color: var(--ink-soft); min-width: 70px; }
-  select, input[type=number], input[type=text] { border: 1px solid var(--paper-line); border-radius: 8px; padding: 8px 12px; font-size: 14px; background: var(--white); font-family: inherit; color: var(--ink); }
-  select:focus, input:focus { outline: none; border-color: var(--accent); }
-  .upload-zone { border: 2px dashed var(--paper-line); border-radius: 12px; padding: 28px; text-align: center; cursor: pointer; background: var(--paper); transition: all 0.15s; }
-  .upload-zone:hover { border-color: var(--accent); background: #f5f8ff; }
-  .upload-zone input { display: none; }
-  .uz-icon { font-size: 28px; margin-bottom: 8px; }
-  .uz-title { font-size: 15px; font-weight: 700; margin-bottom: 4px; }
-  .uz-sub { font-size: 13px; color: var(--gray); }
-  .page-chip { display: flex; align-items: center; gap: 10px; padding: 10px 14px; background: #f0f9f2; border: 1px solid #bbe3c5; border-radius: 9px; font-size: 13px; margin-bottom: 8px; }
-  .page-chip .pc-x { margin-left: auto; cursor: pointer; color: var(--red); font-weight: 700; font-size: 16px; }
-  .btn { display: block; width: 100%; padding: 15px; font-size: 16px; font-weight: 700; background: var(--ink); color: var(--paper); border: none; border-radius: 11px; cursor: pointer; box-shadow: 0 4px 14px rgba(26,43,74,0.18); transition: transform 0.15s; }
-  .btn:hover:not(:disabled) { transform: translateY(-2px); }
-  .btn:disabled { background: #c5cad4; cursor: not-allowed; box-shadow: none; }
-  .btn-ghost { background: var(--white); color: var(--ink); border: 1px solid var(--ink); font-weight: 700; padding: 10px 16px; border-radius: 9px; cursor: pointer; font-size: 14px; }
-  .btn-ghost:hover { background: var(--paper); }
-  .status { text-align: center; padding: 28px; font-size: 15px; color: var(--ink-soft); }
-  .spinner { display: inline-block; width: 16px; height: 16px; border: 2px solid var(--paper-line); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.7s linear infinite; margin-right: 8px; vertical-align: middle; }
-  @keyframes spin { to { transform: rotate(360deg); } }
-  table { width: 100%; border-collapse: collapse; font-size: 14px; margin-bottom: 12px; }
-  th { background: var(--paper); padding: 9px 10px; text-align: left; font-weight: 700; font-size: 11px; text-transform: uppercase; letter-spacing: 0.04em; color: var(--ink-soft); border-bottom: 1px solid var(--paper-line); }
-  td { padding: 8px 10px; border-bottom: 1px solid var(--paper-line); }
-  td input { width: 100%; border: none; background: transparent; font-size: 14px; font-family: inherit; color: var(--ink); }
-  td input:focus { outline: 1px solid var(--accent); border-radius: 4px; }
-  .totals { width: 300px; margin-left: auto; }
-  .totals .tr { display: flex; justify-content: space-between; padding: 6px 0; font-size: 14px; color: var(--ink-soft); }
-  .totals .tr.disc { color: var(--green); }
-  .totals .tr.grand { font-family: 'Fraunces', serif; font-size: 20px; font-weight: 700; color: var(--ink); border-top: 2px solid var(--ink); margin-top: 6px; padding-top: 10px; }
-  .meta-grid { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 16px; }
-  .meta-grid .mg { flex: 1; min-width: 130px; }
-  .meta-grid label { font-size: 11px; color: var(--gray); text-transform: uppercase; letter-spacing: 0.04em; display: block; margin-bottom: 4px; }
-  .meta-grid input { width: 100%; }
-  .error { color: var(--red); background: #fef2f2; border: 1px solid #fecaca; border-radius: 10px; padding: 16px; text-align: center; font-size: 14px; }
-  .del { color: var(--red); cursor: pointer; font-weight: 700; text-align: center; }
-  .actions { display: flex; gap: 10px; margin-top: 16px; flex-wrap: wrap; }
-  #print-area { display: none; }
-  @media print { body > *:not(#print-area) { display: none !important; } #print-area { display: block !important; padding: 24px; } }
-  @media (max-width: 600px) { .totals { width: 100%; } }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:'DM Sans',system-ui,sans-serif;background:var(--paper);color:var(--ink);font-size:14px;line-height:1.5;}
+  nav{background:var(--white);border-bottom:1px solid var(--paper-line);}
+  .nav-inner{display:flex;align-items:center;justify-content:space-between;padding:14px 24px;max-width:960px;margin:0 auto;}
+  .logo{font-family:'Fraunces',serif;font-size:20px;font-weight:700;display:flex;align-items:center;gap:8px;text-decoration:none;color:var(--ink);}
+  .logo-mark{width:24px;height:24px;background:var(--ink);border-radius:6px;position:relative;}
+  .logo-mark::after{content:'';position:absolute;inset:5px 5px auto 5px;height:2px;background:var(--accent-warm);box-shadow:0 4px 0 var(--white),0 7px 0 var(--accent-warm);}
+  .main{max-width:960px;margin:24px auto;padding:0 20px;}
+  .page-title{font-family:'Fraunces',serif;font-size:26px;font-weight:700;margin-bottom:4px;}
+  .page-sub{color:var(--ink-soft);margin-bottom:20px;font-size:14px;}
+  .card{background:var(--white);border:1px solid var(--paper-line);border-radius:14px;padding:20px;margin-bottom:14px;}
+  .card-label{display:flex;align-items:center;gap:8px;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--ink);margin-bottom:14px;}
+  .card-num{width:22px;height:22px;background:var(--ink);color:var(--white);border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;}
+  .row{display:flex;align-items:center;gap:10px;margin-bottom:10px;flex-wrap:wrap;}
+  .row label{font-size:13px;color:var(--ink-soft);min-width:70px;}
+  select,input[type=number],input[type=text]{border:1px solid var(--paper-line);border-radius:8px;padding:7px 10px;font-size:13px;background:var(--white);font-family:inherit;color:var(--ink);}
+  select:focus,input:focus{outline:none;border-color:var(--accent);}
+  .upload-zone{border:2px dashed var(--paper-line);border-radius:12px;padding:24px;text-align:center;cursor:pointer;background:var(--paper);transition:all .15s;}
+  .upload-zone:hover{border-color:var(--accent);background:#f5f8ff;}
+  .upload-zone input{display:none;}
+  .uz-icon{font-size:26px;margin-bottom:6px;}
+  .uz-title{font-size:14px;font-weight:700;margin-bottom:3px;}
+  .uz-sub{font-size:12px;color:var(--gray);}
+  .page-chip{display:flex;align-items:center;gap:10px;padding:9px 12px;background:#f0f9f2;border:1px solid #bbe3c5;border-radius:8px;font-size:12px;margin-bottom:6px;}
+  .page-chip .pc-x{margin-left:auto;cursor:pointer;color:var(--red);font-weight:700;font-size:15px;}
+  .btn{display:block;width:100%;padding:14px;font-size:15px;font-weight:700;background:var(--ink);color:var(--paper);border:none;border-radius:11px;cursor:pointer;box-shadow:0 4px 14px rgba(26,43,74,.18);transition:transform .15s;}
+  .btn:hover:not(:disabled){transform:translateY(-2px);}
+  .btn:disabled{background:#c5cad4;cursor:not-allowed;box-shadow:none;}
+  .btn-ghost{background:var(--white);color:var(--ink);border:1px solid var(--paper-line);font-weight:600;padding:9px 14px;border-radius:9px;cursor:pointer;font-size:13px;}
+  .btn-ghost:hover{background:var(--paper);border-color:var(--ink);}
+  .status{text-align:center;padding:24px;font-size:14px;color:var(--ink-soft);}
+  .spinner{display:inline-block;width:15px;height:15px;border:2px solid var(--paper-line);border-top-color:var(--accent);border-radius:50%;animation:spin .7s linear infinite;margin-right:6px;vertical-align:middle;}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  table{width:100%;border-collapse:collapse;font-size:13px;margin-bottom:10px;}
+  th{background:var(--paper);padding:8px 10px;text-align:left;font-weight:700;font-size:11px;text-transform:uppercase;letter-spacing:.04em;color:var(--ink-soft);border-bottom:1px solid var(--paper-line);}
+  td{padding:7px 10px;border-bottom:1px solid var(--paper-line);}
+  td input{width:100%;border:none;background:transparent;font-size:13px;font-family:inherit;color:var(--ink);}
+  td input:focus{outline:1px solid var(--accent);border-radius:3px;}
+  .totals{width:300px;margin-left:auto;}
+  .totals .tr{display:flex;justify-content:space-between;padding:5px 0;font-size:13px;color:var(--ink-soft);}
+  .totals .tr.disc{color:var(--green);}
+  .totals .tr.grand{font-family:'Fraunces',serif;font-size:20px;font-weight:700;color:var(--ink);border-top:2px solid var(--ink);margin-top:6px;padding-top:10px;}
+  .meta-grid{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px;}
+  .meta-grid .mg{flex:1;min-width:130px;}
+  .meta-grid label{font-size:11px;color:var(--gray);text-transform:uppercase;letter-spacing:.04em;display:block;margin-bottom:3px;}
+  .meta-grid input{width:100%;}
+  .error{color:var(--red);background:#fef2f2;border:1px solid #fecaca;border-radius:10px;padding:14px;text-align:center;font-size:14px;}
+  .del{color:var(--red);cursor:pointer;font-weight:700;text-align:center;font-size:16px;}
+  .actions{display:flex;gap:8px;margin-top:14px;flex-wrap:wrap;}
+  .match-badge{font-size:10px;background:#eff6ff;color:var(--accent);padding:1px 6px;border-radius:10px;margin-left:4px;font-weight:600;}
+  #print-area{display:none;}
+  @media print{body>*:not(#print-area){display:none!important;}#print-area{display:block!important;padding:20px;font-family:Arial,sans-serif;}}
+  @media(max-width:600px){.totals{width:100%;}}
 </style>
 </head>
 <body>
@@ -70,33 +70,29 @@
 <nav>
   <div class="nav-inner">
     <a href="index.html" class="logo"><span class="logo-mark"></span> BillScan</a>
-    <a href="index.html" class="nav-link">← Home</a>
+    <a href="index.html" style="color:var(--ink-soft);text-decoration:none;font-size:14px;font-weight:500;">← Home</a>
   </div>
 </nav>
 
 <div class="main">
   <div class="page-title">Make a bill</div>
-  <div class="page-sub">Upload your bill photo and BillScan does the rest.</div>
+  <div class="page-sub">Upload your bill photo — BillScan reads it and fills it in automatically.</div>
 
+  <!-- STEP 1 FORMAT -->
   <div class="card">
-    <div class="card-label"><span class="card-num">1</span> Choose format</div>
+    <div class="card-label"><span class="card-num">1</span> Choose output format</div>
     <div class="row">
       <label>Format</label>
-      <select id="fmt-choice" onchange="onFmtChange()">
+      <select id="fmt-choice">
+        <option value="mama">Mama Format (M-143 Estimate)</option>
         <option value="default1">Simple Estimate</option>
         <option value="default2">Tax Invoice (GST)</option>
         <option value="default3">Basic Cash Bill</option>
-        <option value="upload">Upload my own format</option>
       </select>
-    </div>
-    <div id="fmt-upload-wrap" style="display:none;margin-top:10px">
-      <div class="upload-zone" onclick="document.getElementById('inp-fmt').click()" id="box-fmt">
-        <input type="file" id="inp-fmt" accept=".pdf,image/*" onchange="handleFmt(this)">
-        <div class="uz-title" id="fmt-name">📄 Upload format PDF</div>
-      </div>
     </div>
   </div>
 
+  <!-- STEP 2 PHOTOS -->
   <div class="card">
     <div class="card-label"><span class="card-num">2</span> Bill photo(s)</div>
     <div id="pages-list"></div>
@@ -108,6 +104,7 @@
     </div>
   </div>
 
+  <!-- STEP 3 OPTIONS -->
   <div class="card">
     <div class="card-label"><span class="card-num">3</span> Options</div>
     <div class="row">
@@ -116,8 +113,8 @@
         <option value="no">No GST</option>
         <option value="yes">Add GST</option>
       </select>
-      <div id="gst-pct-wrap" style="display:none;align-items:center;gap:6px">
-        <input type="number" id="gst-pct" value="18" min="0" max="28" style="width:70px"> <span>%</span>
+      <div id="gst-pct-wrap" style="display:none;align-items:center;gap:6px;">
+        <input type="number" id="gst-pct" value="18" min="0" max="28" style="width:65px;"> <span>%</span>
       </div>
     </div>
     <div class="row">
@@ -128,119 +125,163 @@
         <option value="total_flat">Total ₹</option>
         <option value="item_pct">Per item %</option>
       </select>
-      <div id="disc-val-wrap" style="display:none;align-items:center;gap:6px">
-        <input type="number" id="disc-val" value="0" min="0" style="width:80px" onchange="if(billData)refreshTotals()">
+      <div id="disc-val-wrap" style="display:none;align-items:center;gap:6px;">
+        <input type="number" id="disc-val" value="0" min="0" style="width:75px;" onchange="if(billData)refreshTotals()">
         <span id="disc-unit">%</span>
       </div>
     </div>
   </div>
 
   <button class="btn" id="btn-scan" onclick="runScan()" disabled>Scan &amp; Generate Bill</button>
-
-  <div id="output" style="margin-top:16px"></div>
+  <div id="output" style="margin-top:16px;"></div>
 </div>
 
 <div id="print-area"></div>
 
 <script>
-let fmtFile = null, pages = [], billData = null, invoiceCounter = 1;
-window.onload = () => { const s = localStorage.getItem('invoice_counter'); if (s) invoiceCounter = parseInt(s); };
+// ── PRODUCT MASTER LIST (277 items) ──
+const PRODUCTS = [{"cat": "H/L VISOR", "name": "SPLANDOR / 216", "price": 216.0}, {"cat": "H/L VISOR", "name": "SPLANDOR (A/W)", "price": 240.0}, {"cat": "H/L VISOR", "name": "SPLANDOR HERO", "price": 250.0}, {"cat": "H/L VISOR", "name": "SPL. PRO (S/P. LUCK AGE PICHHE)", "price": 260.0}, {"cat": "H/L VISOR", "name": "SPL PRO HERO [S/P.1.SIDE BOLT & LUCK]", "price": 260.0}, {"cat": "H/L VISOR", "name": "SPLENDOR 1.3.S [S/P TWO SIDE BOLT]", "price": 260.0}, {"cat": "H/L VISOR", "name": "SPL B.S.6 [S/P TWO SIDE BOLT]", "price": 270.0}, {"cat": "H/L VISOR", "name": "SPL PRO (N/M) 2016 GLS WALI", "price": 540.0}, {"cat": "H/L VISOR", "name": "I SMART", "price": 620.0}, {"cat": "H/L VISOR", "name": "I SMART (N/M)", "price": 720.0}, {"cat": "H/L VISOR", "name": "SPLENDOR NXG", "price": 500.0}, {"cat": "H/L VISOR", "name": "PASSION (O/M)", "price": 340.0}, {"cat": "H/L VISOR", "name": "PASSION (A/W)", "price": 340.0}, {"cat": "H/L VISOR", "name": "PASSION PRO", "price": 540.0}, {"cat": "H/L VISOR", "name": "PASSION PRO DIZITELS", "price": 540.0}, {"cat": "H/L VISOR", "name": "PASSION PRO (N/M) 2016", "price": 540.0}, {"cat": "H/L VISOR", "name": "PASSION 2020 PRO BS6", "price": 740.0}, {"cat": "H/L VISOR", "name": "PASSION X. PRO", "price": 640.0}, {"cat": "H/L VISOR", "name": "PASSION X. PRO (N/M)", "price": 760.0}, {"cat": "H/L VISOR", "name": "CD DOWN & CD DLX (O/M)", "price": 320.0}, {"cat": "H/L VISOR", "name": "CD DLX & HF DLX 2010 TO 2014", "price": 340.0}, {"cat": "H/L VISOR", "name": "HF DLX LETOST 2016", "price": 340.0}, {"cat": "H/L VISOR", "name": "HF DLX LETOST T/4", "price": 350.0}, {"cat": "H/L VISOR", "name": "HF DLX LETOST 1.3.S", "price": 360.0}, {"cat": "H/L VISOR", "name": "HF DLX LETOST B.S.6", "price": 440.0}, {"cat": "H/L VISOR", "name": "SUP SPL (N/M) & T3", "price": 470.0}, {"cat": "H/L VISOR", "name": "SUPER SPL LETOST T/4", "price": 620.0}, {"cat": "H/L VISOR", "name": "SUP SPL T/5", "price": 760.0}, {"cat": "H/L VISOR", "name": "SUP SPL B.S.6", "price": 920.0}, {"cat": "H/L VISOR", "name": "GLEMOUR (O/M)", "price": 500.0}, {"cat": "H/L VISOR", "name": "SPL L.E.D 2022", "price": 360.0}, {"cat": "H/L VISOR", "name": "SCOOTY (O/M)", "price": 350.0}, {"cat": "H/L VISOR", "name": "SCOOTY (N/M)", "price": 360.0}, {"cat": "H/L VISOR", "name": "VICTOR (O/M)", "price": 480.0}, {"cat": "H/L VISOR", "name": "VICTOR GLX", "price": 520.0}, {"cat": "H/L VISOR", "name": "VICTOR GX", "price": 480.0}, {"cat": "H/L VISOR", "name": "VICTOR (N/M)", "price": 660.0}, {"cat": "H/L VISOR", "name": "FIERO", "price": 570.0}, {"cat": "H/L VISOR", "name": "FIERO/2", "price": 570.0}, {"cat": "H/L VISOR", "name": "CENTRA", "price": 360.0}, {"cat": "H/L VISOR", "name": "STAR CITY (O/M)(N/M)", "price": 480.0}, {"cat": "H/L VISOR", "name": "STAR SPORTS", "price": 500.0}, {"cat": "H/L VISOR", "name": "STAR SPORTS (N/M)", "price": 560.0}, {"cat": "H/L VISOR", "name": "STAR C.V.T.I.", "price": 520.0}, {"cat": "H/L VISOR", "name": "APACHI", "price": 600.0}, {"cat": "H/L VISOR", "name": "STAR CITY", "price": 560.0}, {"cat": "H/L VISOR", "name": "WEGO", "price": 620.0}, {"cat": "H/L VISOR", "name": "APACHI R.T.R.", "price": 680.0}, {"cat": "H/L VISOR", "name": "STAR CITY 110 CC", "price": 480.0}, {"cat": "H/L VISOR", "name": "REDON", "price": 620.0}, {"cat": "H/L VISOR", "name": "REDON SET (WITH CROM)", "price": 920.0}, {"cat": "H/L VISOR", "name": "SCOOTY PEP", "price": 420.0}, {"cat": "H/L VISOR", "name": "APACHI 4U (N/M) SETOFU", "price": 1180.0}, {"cat": "H/L VISOR", "name": "FREEDOM", "price": 360.0}, {"cat": "H/L VISOR", "name": "STAR SPORT BS6", "price": 560.0}, {"cat": "H/L VISOR", "name": "K.B.4.S.", "price": 320.0}, {"cat": "H/L VISOR", "name": "CALIBER 115, CROMA", "price": 460.0}, {"cat": "H/L VISOR", "name": "BOXER CT", "price": 320.0}, {"cat": "H/L VISOR", "name": "CT 100, DLX", "price": 440.0}, {"cat": "H/L VISOR", "name": "CT 100 (N/M)", "price": 450.0}, {"cat": "H/L VISOR", "name": "CT 100 LETOST", "price": 460.0}, {"cat": "H/L VISOR", "name": "CT 100 LED", "price": 500.0}, {"cat": "H/L VISOR", "name": "PLATINA", "price": 460.0}, {"cat": "H/L VISOR", "name": "PLATINA (N/M)", "price": 520.0}, {"cat": "H/L VISOR", "name": "PLATINA L.E.D.", "price": 520.0}, {"cat": "H/L VISOR", "name": "PLATINA B.S.6", "price": 620.0}, {"cat": "H/L VISOR", "name": "PLATINA 125 CC", "price": 500.0}, {"cat": "H/L VISOR", "name": "DISCOVER (O/M) 135 CC", "price": 460.0}, {"cat": "H/L VISOR", "name": "DIS-100 CC", "price": 500.0}, {"cat": "H/L VISOR", "name": "DIS-150 CC", "price": 500.0}, {"cat": "H/L VISOR", "name": "DIS-125 CC (N/M)", "price": 500.0}, {"cat": "H/L VISOR", "name": "DISCOVER S.T.", "price": 620.0}, {"cat": "H/L VISOR", "name": "DIS-100[M]", "price": 660.0}, {"cat": "H/L VISOR", "name": "X.C.D 125 CC", "price": 500.0}, {"cat": "H/L VISOR", "name": "X.C.D 135 CC", "price": 640.0}, {"cat": "H/L VISOR", "name": "VIKRANTA SET OF 3 WITH CROME", "price": 1180.0}, {"cat": "H/L VISOR", "name": "PULSAR DTSI", "price": 440.0}, {"cat": "H/L VISOR", "name": "PULSAR DIZITEL", "price": 470.0}, {"cat": "H/L VISOR", "name": "PULSAR DIZITEL (N/M)", "price": 500.0}, {"cat": "H/L VISOR", "name": "PULSAR DIZITEL LETOS", "price": 600.0}, {"cat": "H/L VISOR", "name": "PULSAR DIZITEL (2019/20)", "price": 600.0}, {"cat": "H/L VISOR", "name": "PULSAR 135 CC", "price": 560.0}, {"cat": "H/L VISOR", "name": "PULSAR 220 CC", "price": 2520.0}, {"cat": "H/L VISOR", "name": "CT-110X", "price": 540.0}, {"cat": "F/M", "name": "SPLANDOR", "price": 300.0}, {"cat": "F/M", "name": "SPLANDOR (A/W)", "price": 300.0}, {"cat": "F/M", "name": "SPLANDOR HERO", "price": 300.0}, {"cat": "F/M", "name": "SPL. PRO (S/P. LUCK AGE PICHHE)", "price": 350.0}, {"cat": "F/M", "name": "SPL PRO HERO [S/P.1.SIDE BOLT & LUCK]", "price": 350.0}, {"cat": "F/M", "name": "SPLENDOR 1.3.S [S/P TWO SIDE BOLT]", "price": 400.0}, {"cat": "F/M", "name": "SPL B.S.6 [S/P TWO SIDE BOLT]", "price": 400.0}, {"cat": "F/M", "name": "SPL PRO (N/M) 2016 GLS WALI", "price": 350.0}, {"cat": "F/M", "name": "I SMART", "price": 360.0}, {"cat": "F/M", "name": "I SMART (N/M)", "price": 400.0}, {"cat": "F/M", "name": "SPLENDOR NXG", "price": 350.0}, {"cat": "F/M", "name": "PASSION (O/M)", "price": 300.0}, {"cat": "F/M", "name": "PASSION (A/W)", "price": 300.0}, {"cat": "F/M", "name": "PASSION PRO", "price": 300.0}, {"cat": "F/M", "name": "PASSION PRO DIZITELS", "price": 300.0}, {"cat": "F/M", "name": "PASSION PRO (N/M) 2016", "price": 400.0}, {"cat": "F/M", "name": "PASSION 2020 PRO BS6", "price": 400.0}, {"cat": "F/M", "name": "PASSION X. PRO", "price": 380.0}, {"cat": "F/M", "name": "CD DOWN & CD DLX (O/M)", "price": 300.0}, {"cat": "F/M", "name": "CD DLX & HF DLX 2010 TO 2014", "price": 350.0}, {"cat": "F/M", "name": "HF DLX LETOST 2016", "price": 370.0}, {"cat": "F/M", "name": "HF DLX LETOST T/4", "price": 380.0}, {"cat": "F/M", "name": "HF DLX LETOST 1.3.S", "price": 380.0}, {"cat": "F/M", "name": "HF DLX LETOST B.S.6", "price": 360.0}, {"cat": "F/M", "name": "SUP SPL (N/M) & T3", "price": 360.0}, {"cat": "F/M", "name": "SUPER SPL LETOST T/4", "price": 380.0}, {"cat": "F/M", "name": "SUP SPL B.S.6", "price": 380.0}, {"cat": "F/M", "name": "GLEMOUR (O/M)", "price": 360.0}, {"cat": "F/M", "name": "SPL L.E.D 2022", "price": 400.0}, {"cat": "F/M", "name": "K.B.4.S.", "price": 300.0}, {"cat": "F/M", "name": "CALIBER 115, CROMA", "price": 300.0}, {"cat": "F/M", "name": "BOXER CT", "price": 300.0}, {"cat": "F/M", "name": "BOXER AT, AT", "price": 300.0}, {"cat": "F/M", "name": "CT 100, DLX", "price": 300.0}, {"cat": "F/M", "name": "CT 100 (N/M)", "price": 300.0}, {"cat": "F/M", "name": "CT 100 LETOST", "price": 300.0}, {"cat": "F/M", "name": "CT 100 LED", "price": 300.0}, {"cat": "F/M", "name": "PLATINA", "price": 300.0}, {"cat": "F/M", "name": "PLATINA (N/M)", "price": 360.0}, {"cat": "F/M", "name": "PLATINA L.E.D.", "price": 360.0}, {"cat": "F/M", "name": "PLATINA B.S.6", "price": 360.0}, {"cat": "F/M", "name": "PLATINA 125 CC", "price": 300.0}, {"cat": "F/M", "name": "DISCOVER (O/M) 135 CC", "price": 310.0}, {"cat": "F/M", "name": "DIS-100 CC", "price": 350.0}, {"cat": "F/M", "name": "DIS-150 CC", "price": 350.0}, {"cat": "F/M", "name": "DIS-125 CC (N/M)", "price": 350.0}, {"cat": "F/M", "name": "DISCOVER S.T.", "price": 360.0}, {"cat": "F/M", "name": "DIS-100[M]", "price": 360.0}, {"cat": "F/M", "name": "X.C.D 125 CC", "price": 420.0}, {"cat": "F/M", "name": "X.C.D 135 CC", "price": 420.0}, {"cat": "F/M", "name": "VIKRANTA SET OF 3 WITH CROME", "price": 400.0}, {"cat": "F/M", "name": "PULSAR DTSI", "price": 320.0}, {"cat": "F/M", "name": "PULSAR DIZITEL", "price": 360.0}, {"cat": "F/M", "name": "PULSAR DIZITEL (N/M)", "price": 360.0}, {"cat": "F/M", "name": "PULSAR DIZITEL LETOS", "price": 380.0}, {"cat": "F/M", "name": "PULSAR DIZITEL (2019/20)", "price": 380.0}, {"cat": "F/M", "name": "PULSAR 135 CC", "price": 380.0}, {"cat": "F/M", "name": "PULSAR 220 CC", "price": 380.0}, {"cat": "F/M", "name": "PULSAR N.S.", "price": 520.0}, {"cat": "F/M", "name": "AVIZER", "price": 500.0}, {"cat": "F/M", "name": "CT-110X", "price": 480.0}, {"cat": "F/M", "name": "VICTOR (O/M)", "price": 310.0}, {"cat": "F/M", "name": "VICTOR GLX", "price": 380.0}, {"cat": "F/M", "name": "VICTOR GX", "price": 310.0}, {"cat": "F/M", "name": "FIERO", "price": 420.0}, {"cat": "F/M", "name": "FIERO/2", "price": 420.0}, {"cat": "F/M", "name": "CENTRA", "price": 320.0}, {"cat": "F/M", "name": "STAR CITY (O/M)(N/M)", "price": 320.0}, {"cat": "F/M", "name": "STAR SPORTS", "price": 360.0}, {"cat": "F/M", "name": "STAR SPORTS (N/M)", "price": 360.0}, {"cat": "F/M", "name": "STAR C.V.T.I.", "price": 320.0}, {"cat": "F/M", "name": "APACHI", "price": 360.0}, {"cat": "F/M", "name": "STAR CITY", "price": 360.0}, {"cat": "F/M", "name": "APACHI R.T.R.", "price": 380.0}, {"cat": "F/M", "name": "STAR CITY 110 CC", "price": 340.0}, {"cat": "F/M", "name": "REDON", "price": 500.0}, {"cat": "F/M", "name": "REDON SET (WITH CROM)", "price": 500.0}, {"cat": "F/M", "name": "HONET", "price": 360.0}, {"cat": "F/M", "name": "PHONIX", "price": 400.0}, {"cat": "F/M", "name": "APACHI 4U (N/M) SETOFU", "price": 820.0}, {"cat": "F/M", "name": "FREEDOM", "price": 360.0}, {"cat": "F/M", "name": "STAR SPORT BS6", "price": 340.0}, {"cat": "S.P.", "name": "K.B.4.S.", "price": 520.0}, {"cat": "S.P.", "name": "CALIBER 115, CROMA", "price": 500.0}, {"cat": "S.P.", "name": "BOXER CT", "price": 460.0}, {"cat": "S.P.", "name": "BOXER AT, AT", "price": 520.0}, {"cat": "S.P.", "name": "CT 100, DLX", "price": 480.0}, {"cat": "S.P.", "name": "CT 100 (N/M)", "price": 480.0}, {"cat": "S.P.", "name": "CT 100 LETOST", "price": 480.0}, {"cat": "S.P.", "name": "CT 100 LED", "price": 480.0}, {"cat": "S.P.", "name": "PLATINA", "price": 500.0}, {"cat": "S.P.", "name": "PLATINA (N/M)", "price": 720.0}, {"cat": "S.P.", "name": "PLATINA L.E.D.", "price": 720.0}, {"cat": "S.P.", "name": "PLATINA B.S.6", "price": 720.0}, {"cat": "S.P.", "name": "PLATINA 125 CC", "price": 760.0}, {"cat": "S.P.", "name": "DISCOVER (O/M) 135 CC", "price": 520.0}, {"cat": "S.P.", "name": "DIS-100 CC", "price": 560.0}, {"cat": "S.P.", "name": "DIS-150 CC", "price": 570.0}, {"cat": "S.P.", "name": "DIS-125 CC (N/M)", "price": 560.0}, {"cat": "S.P.", "name": "DISCOVER S.T.", "price": 840.0}, {"cat": "S.P.", "name": "DIS-100[M]", "price": 860.0}, {"cat": "S.P.", "name": "X.C.D 125 CC", "price": 900.0}, {"cat": "S.P.", "name": "X.C.D 135 CC", "price": 1000.0}, {"cat": "S.P.", "name": "VIKRANTA SET OF 3 WITH CROME", "price": 870.0}, {"cat": "S.P.", "name": "PULSAR DTSI", "price": 480.0}, {"cat": "S.P.", "name": "PULSAR DIZITEL", "price": 520.0}, {"cat": "S.P.", "name": "PULSAR DIZITEL (N/M)", "price": 570.0}, {"cat": "S.P.", "name": "PULSAR DIZITEL LETOS", "price": 570.0}, {"cat": "S.P.", "name": "PULSAR DIZITEL (2019/20)", "price": 570.0}, {"cat": "S.P.", "name": "PULSAR 135 CC", "price": 820.0}, {"cat": "S.P.", "name": "PULSAR 220 CC", "price": 560.0}, {"cat": "S.P.", "name": "AVIZER", "price": 960.0}, {"cat": "S.P.", "name": "CT-110X", "price": 800.0}, {"cat": "S.P.", "name": "SPLANDOR", "price": 340.0}, {"cat": "S.P.", "name": "SPLANDOR (A/W)", "price": 370.0}, {"cat": "S.P.", "name": "SPLANDOR HERO", "price": 370.0}, {"cat": "S.P.", "name": "SPL. PRO (S/P. LUCK AGE PICHHE)", "price": 400.0}, {"cat": "S.P.", "name": "SPL PRO HERO [S/P.1SIDE BOLT & LUCK]", "price": 400.0}, {"cat": "S.P.", "name": "SPLENDOR 1.3.S [S/P TWO SIDE BOLT]", "price": 400.0}, {"cat": "S.P.", "name": "SPL B.S.6 [S/P TWO SIDE BOLT]", "price": 410.0}, {"cat": "S.P.", "name": "SPL PRO (N/M) 2016 GLS WALI", "price": 620.0}, {"cat": "S.P.", "name": "I SMART", "price": 620.0}, {"cat": "S.P.", "name": "I SMART (N/M)", "price": 920.0}, {"cat": "S.P.", "name": "SPLENDOR NXG", "price": 640.0}, {"cat": "S.P.", "name": "PASSION (O/M)", "price": 450.0}, {"cat": "S.P.", "name": "PASSION (A/W)", "price": 460.0}, {"cat": "S.P.", "name": "PASSION PRO", "price": 470.0}, {"cat": "S.P.", "name": "PASSION PRO DIZITELS", "price": 470.0}, {"cat": "S.P.", "name": "PASSION PRO (N/M) 2016", "price": 1020.0}, {"cat": "S.P.", "name": "PASSION 2020 PRO BS6", "price": 1020.0}, {"cat": "S.P.", "name": "PASSION X. PRO", "price": 820.0}, {"cat": "S.P.", "name": "CD DOWN & CD DLX (O/M)", "price": 440.0}, {"cat": "S.P.", "name": "CD DLX & HF DLX 2010 TO 2014", "price": 450.0}, {"cat": "S.P.", "name": "HF DLX LETOST 2016", "price": 460.0}, {"cat": "S.P.", "name": "HF DLX LETOST T/4", "price": 460.0}, {"cat": "S.P.", "name": "HF DLX LETOST I.3.S", "price": 460.0}, {"cat": "S.P.", "name": "HF DLX LETOST B.S.6", "price": 570.0}, {"cat": "S.P.", "name": "SUP SPL (N/M) & T3", "price": 570.0}, {"cat": "S.P.", "name": "SUPER SPL LETOST T/4", "price": 970.0}, {"cat": "S.P.", "name": "SUP SPL B.S.6", "price": 1020.0}, {"cat": "S.P.", "name": "GLEMOUR (O/M)", "price": 770.0}, {"cat": "S.P.", "name": "SPL L.E.D 2022", "price": 420.0}, {"cat": "T.P.", "name": "SPLANDOR", "price": 340.0}, {"cat": "T.P.", "name": "SPLANDOR (A/W)", "price": 370.0}, {"cat": "T.P.", "name": "SPLANDOR HERO", "price": 370.0}, {"cat": "T.P.", "name": "SPL. PRO (S/P. LUCK AGE PICHHE)", "price": 380.0}, {"cat": "T.P.", "name": "SPL PRO HERO [S/P.1SIDE BOLT & LUCK]", "price": 400.0}, {"cat": "T.P.", "name": "SPLENDOR 1.3.S [S/P TWO SIDE BOLT]", "price": 400.0}, {"cat": "T.P.", "name": "SPL B.S.6 [S/P TWO SIDE BOLT]", "price": 410.0}, {"cat": "T.P.", "name": "SPL PRO (N/M) 2016 GLS WALI", "price": 720.0}, {"cat": "T.P.", "name": "I SMART", "price": 1120.0}, {"cat": "T.P.", "name": "SPLENDOR NXG", "price": 1120.0}, {"cat": "T.P.", "name": "PASSION (O/M)", "price": 540.0}, {"cat": "T.P.", "name": "PASSION (A/W)", "price": 550.0}, {"cat": "T.P.", "name": "PASSION PRO", "price": 580.0}, {"cat": "T.P.", "name": "PASSION PRO DIZITELS", "price": 580.0}, {"cat": "T.P.", "name": "PASSION PRO (N/M) 2016", "price": 920.0}, {"cat": "T.P.", "name": "PASSION 2020 PRO BS6", "price": 1020.0}, {"cat": "T.P.", "name": "PASSION X. PRO", "price": 920.0}, {"cat": "T.P.", "name": "CD DOWN & CD DLX (O/M)", "price": 280.0}, {"cat": "T.P.", "name": "CD DLX & HF DLX 2010 TO 2014", "price": 360.0}, {"cat": "T.P.", "name": "HF DLX LETOST 2016", "price": 430.0}, {"cat": "T.P.", "name": "HF DLX LETOST T/4", "price": 430.0}, {"cat": "T.P.", "name": "HF DLX LETOST 1.3.S", "price": 430.0}, {"cat": "T.P.", "name": "HF DLX LETOST B.S.6", "price": 580.0}, {"cat": "T.P.", "name": "SUP SPL (N/M) & T3", "price": 580.0}, {"cat": "T.P.", "name": "SUPER SPL LETOST T/4", "price": 970.0}, {"cat": "T.P.", "name": "SUP SPL B.S.6", "price": 1000.0}, {"cat": "T.P.", "name": "GLEMOUR (O/M)", "price": 780.0}, {"cat": "T.P.", "name": "SPL L.E.D 2022", "price": 400.0}, {"cat": "T.P.", "name": "CT 100, DLX", "price": 540.0}, {"cat": "T.P.", "name": "CT 100 (N/M)", "price": 540.0}, {"cat": "T.P.", "name": "CT 100 LETOST", "price": 540.0}, {"cat": "T.P.", "name": "CT 100 LED", "price": 540.0}, {"cat": "T.P.", "name": "PLATINA", "price": 580.0}, {"cat": "T.P.", "name": "PLATINA (N/M)", "price": 660.0}, {"cat": "T.P.", "name": "PLATINA L.E.D.", "price": 620.0}, {"cat": "T.P.", "name": "PLATINA B.S.6", "price": 620.0}, {"cat": "T.P.", "name": "PLATINA 125 CC", "price": 620.0}, {"cat": "T.P.", "name": "DISCOVER (O/M) 135 CC", "price": 540.0}, {"cat": "T.P.", "name": "DIS-100 CC", "price": 560.0}, {"cat": "T.P.", "name": "DIS-150 CC", "price": 570.0}, {"cat": "T.P.", "name": "DIS-125 CC (N/M)", "price": 570.0}, {"cat": "T.P.", "name": "DISCOVER S.T.", "price": 740.0}, {"cat": "T.P.", "name": "DIS-100[M]", "price": 820.0}, {"cat": "T.P.", "name": "X.C.D 125 CC", "price": 1400.0}, {"cat": "T.P.", "name": "PULSAR DTSI", "price": 520.0}, {"cat": "T.P.", "name": "PULSAR DIZITEL", "price": 720.0}, {"cat": "T.P.", "name": "PULSAR DIZITEL (N/M)", "price": 780.0}, {"cat": "T.P.", "name": "PULSAR DIZITEL LETOS", "price": 780.0}, {"cat": "T.P.", "name": "PULSAR DIZITEL (2019/20)", "price": 780.0}, {"cat": "T.P.", "name": "PULSAR 135 CC", "price": 1420.0}, {"cat": "T.P.", "name": "PULSAR 220 CC", "price": 780.0}];
 
-function onFmtChange() {
-  document.getElementById('fmt-upload-wrap').style.display = document.getElementById('fmt-choice').value === 'upload' ? 'block' : 'none';
+// ── STATE ──
+let pages = [], billData = null, invoiceCounter = 1;
+window.onload = () => { const s = localStorage.getItem('inv_count'); if(s) invoiceCounter = parseInt(s); };
+
+// ── FUZZY MATCH ──
+function normalize(s){ return s.toUpperCase().replace(/[^A-Z0-9]/g,''); }
+function similarity(a, b){
+  a = normalize(a); b = normalize(b);
+  if(b.includes(a) || a.includes(b)) return 0.9;
+  let matches = 0;
+  for(let i=0;i<Math.min(a.length,b.length);i++){ if(a[i]===b[i]) matches++; }
+  return matches / Math.max(a.length, b.length);
 }
-function handleFmt(inp) {
-  fmtFile = inp.files[0]; if (!fmtFile) return;
-  document.getElementById('fmt-name').textContent = '✓ ' + fmtFile.name;
+function findMatch(scannedName){
+  let best = null, bestScore = 0;
+  for(const p of PRODUCTS){
+    const fullName = p.cat + ' ' + p.name;
+    const s = Math.max(similarity(scannedName, fullName), similarity(scannedName, p.name));
+    if(s > bestScore && s > 0.45){ bestScore = s; best = p; }
+  }
+  return best ? { product: best.cat + ' ' + best.name, price: best.price, score: bestScore } : null;
 }
-function toBase64(file) {
-  return new Promise((res, rej) => { const r = new FileReader(); r.onload = () => res(r.result.split(',')[1]); r.onerror = rej; r.readAsDataURL(file); });
-}
-async function addPage(inp) {
-  const file = inp.files[0]; if (!file) return;
+
+// ── UPLOADS ──
+function toBase64(file){ return new Promise((res,rej)=>{ const r=new FileReader(); r.onload=()=>res(r.result.split(',')[1]); r.onerror=rej; r.readAsDataURL(file); }); }
+async function addPage(inp){
+  const file = inp.files[0]; if(!file) return;
   const b64 = await toBase64(file);
-  pages.push({ name: file.name, mime: file.type || 'image/jpeg', data: b64 });
+  pages.push({ name: file.name, mime: file.type||'image/jpeg', data: b64 });
   inp.value = ''; renderPages(); checkReady();
 }
-function renderPages() {
-  document.getElementById('pages-list').innerHTML = pages.map((p,i) =>
+function renderPages(){
+  document.getElementById('pages-list').innerHTML = pages.map((p,i)=>
     `<div class="page-chip">📄 Page ${i+1}: ${p.name}<span class="pc-x" onclick="removePage(${i})">✕</span></div>`).join('');
 }
-function removePage(i) { pages.splice(i,1); renderPages(); checkReady(); }
-function checkReady() { document.getElementById('btn-scan').disabled = pages.length === 0; }
-function toggleGst() { document.getElementById('gst-pct-wrap').style.display = document.getElementById('gst-choice').value === 'yes' ? 'flex' : 'none'; if (billData) refreshTotals(); }
-function toggleDisc() {
+function removePage(i){ pages.splice(i,1); renderPages(); checkReady(); }
+function checkReady(){ document.getElementById('btn-scan').disabled = pages.length===0; }
+function toggleGst(){ document.getElementById('gst-pct-wrap').style.display = document.getElementById('gst-choice').value==='yes'?'flex':'none'; if(billData) refreshTotals(); }
+function toggleDisc(){
   const v = document.getElementById('disc-type').value;
-  document.getElementById('disc-val-wrap').style.display = v === 'none' ? 'none' : 'flex';
-  document.getElementById('disc-unit').textContent = v === 'total_flat' ? '₹' : '%';
-  if (billData) refreshTotals();
+  document.getElementById('disc-val-wrap').style.display = v==='none'?'none':'flex';
+  document.getElementById('disc-unit').textContent = v==='total_flat'?'₹':'%';
+  if(billData) refreshTotals();
 }
-async function runScan() {
+
+// ── SCAN ──
+async function runScan(){
   const btn = document.getElementById('btn-scan'); btn.disabled = true;
   const out = document.getElementById('output');
   out.innerHTML = '<div class="card"><div class="status"><span class="spinner"></span> Reading your bill...</div></div>';
   try {
-    const r = await fetch('/api/scan', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ images: pages.map(p=>({mime:p.mime,data:p.data})) }) });
+    const r = await fetch('/api/scan', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ images: pages.map(p=>({mime:p.mime,data:p.data})) })
+    });
     const data = await r.json();
-    if (data.error) throw new Error(data.error);
+    if(data.error) throw new Error(data.error);
     let parsed = JSON.parse(data.result);
-    if (parsed.error === 'not_a_bill') {
-      out.innerHTML = '<div class="card"><div class="error">This doesn\'t look like a bill. Please upload a clear photo of your handwritten bill.</div></div>';
+    if(parsed.error==='not_a_bill'){
+      out.innerHTML = `<div class="card"><div class="error">This does not look like a bill. Please upload a clear photo of your handwritten bill.</div></div>`;
       btn.disabled = false; return;
     }
-    billData = parsed; refreshTotals();
+
+    // Apply fuzzy matching to each item
+    parsed.items = parsed.items.map(it => {
+      const match = findMatch(it.product);
+      if(match && match.score > 0.55){
+        return {
+          ...it,
+          product: match.product,
+          rate: it.rate > 0 ? it.rate : match.price,
+          amount: it.qty * (it.rate > 0 ? it.rate : match.price),
+          _matched: true
+        };
+      }
+      return it;
+    });
+
+    billData = parsed;
+    refreshTotals();
   } catch(e) {
-    out.innerHTML = `<div class="card"><div class="error">Couldn't read it: ${e.message}<br>Try again with a clearer photo.</div></div>`;
+    out.innerHTML = `<div class="card"><div class="error">Could not read bill: ${e.message}<br>Try again with a clearer photo.</div></div>`;
     btn.disabled = false;
   }
 }
-function calcTotals(items, gstOn, gstPct, discType, discVal) {
+
+// ── TOTALS ──
+function calcTotals(items, gstOn, gstPct, discType, discVal){
   let subtotal=0, itemDiscTotal=0;
-  items.forEach(it => {
-    const amt = parseFloat(it.amount)||0; subtotal += amt;
-    if (discType==='item_pct') { it._disc = amt*discVal/100; it._net = amt-it._disc; itemDiscTotal += it._disc; }
-    else it._net = amt;
+  items.forEach(it=>{
+    const amt=parseFloat(it.amount)||0; subtotal+=amt;
+    if(discType==='item_pct'){ it._disc=amt*discVal/100; it._net=amt-it._disc; itemDiscTotal+=it._disc; }
+    else it._net=amt;
   });
   let billDisc=0;
-  if (discType==='total_pct') billDisc = subtotal*discVal/100;
-  if (discType==='total_flat') billDisc = discVal;
-  const taxable = subtotal-itemDiscTotal-billDisc;
-  const gstAmt = gstOn ? taxable*gstPct/100 : 0;
-  return { subtotal, itemDiscTotal, billDisc, taxable, gstAmt, grand: taxable+gstAmt };
+  if(discType==='total_pct') billDisc=subtotal*discVal/100;
+  if(discType==='total_flat') billDisc=discVal;
+  const taxable=subtotal-itemDiscTotal-billDisc;
+  const gstAmt=gstOn?taxable*gstPct/100:0;
+  return {subtotal,itemDiscTotal,billDisc,taxable,gstAmt,grand:taxable+gstAmt};
 }
-function refreshTotals() {
-  const gstOn = document.getElementById('gst-choice').value==='yes';
-  const gstPct = gstOn ? parseFloat(document.getElementById('gst-pct').value)||18 : 0;
-  const discType = document.getElementById('disc-type').value;
-  const discVal = parseFloat(document.getElementById('disc-val').value)||0;
-  renderBill(gstOn, gstPct, discType, discVal);
+function refreshTotals(){
+  const gstOn=document.getElementById('gst-choice').value==='yes';
+  const gstPct=gstOn?parseFloat(document.getElementById('gst-pct').value)||18:0;
+  const discType=document.getElementById('disc-type').value;
+  const discVal=parseFloat(document.getElementById('disc-val').value)||0;
+  renderBill(gstOn,gstPct,discType,discVal);
 }
-function renderBill(gstOn, gstPct, discType, discVal) {
-  const d = billData, t = calcTotals(d.items, gstOn, gstPct, discType, discVal);
-  const today = new Date().toLocaleDateString('en-IN');
-  const invNo = d.invoice_no || ('INV-'+String(invoiceCounter).padStart(4,'0'));
-  const discCol = discType==='item_pct' ? '<th>Disc%</th>' : '';
-  const rows = d.items.map((it,i) => {
-    const dc = discType==='item_pct' ? `<td><input type="number" value="${discVal}" style="width:50px" onchange="refreshTotals()"></td>` : '';
-    const amt = discType==='item_pct' ? (it._net||0) : (parseFloat(it.amount)||0);
+
+// ── RENDER BILL ──
+function renderBill(gstOn,gstPct,discType,discVal){
+  const d=billData, t=calcTotals(d.items,gstOn,gstPct,discType,discVal);
+  const today=new Date().toLocaleDateString('en-IN');
+  const invNo=d.invoice_no||('INV-'+String(invoiceCounter).padStart(4,'0'));
+  const discCol=discType==='item_pct'?'<th>Disc%</th>':'';
+
+  const rows=d.items.map((it,i)=>{
+    const dc=discType==='item_pct'?`<td><input type="number" value="${discVal}" style="width:45px" onchange="refreshTotals()"></td>`:'';
+    const amt=discType==='item_pct'?(it._net||0):(parseFloat(it.amount)||0);
+    const badge=it._matched?'<span class="match-badge">matched</span>':'';
     return `<tr>
-      <td>${i+1}</td>
-      <td><input value="${it.product||''}" onchange="billData.items[${i}].product=this.value"></td>
-      <td><input type="number" value="${it.qty||0}" style="width:55px" onchange="billData.items[${i}].qty=parseFloat(this.value)||0;billData.items[${i}].amount=billData.items[${i}].qty*(billData.items[${i}].rate||0);refreshTotals()"></td>
-      <td><input type="number" value="${it.rate||0}" style="width:70px" onchange="billData.items[${i}].rate=parseFloat(this.value)||0;billData.items[${i}].amount=(billData.items[${i}].qty||0)*billData.items[${i}].rate;refreshTotals()"></td>
+      <td style="color:var(--gray);font-size:12px">${i+1}</td>
+      <td><input value="${it.product||''}" onchange="billData.items[${i}].product=this.value">${badge}</td>
+      <td><input type="number" value="${it.qty||0}" style="width:50px" onchange="billData.items[${i}].qty=parseFloat(this.value)||0;billData.items[${i}].amount=billData.items[${i}].qty*(billData.items[${i}].rate||0);refreshTotals()"></td>
+      <td><input type="number" value="${it.rate||0}" style="width:65px" onchange="billData.items[${i}].rate=parseFloat(this.value)||0;billData.items[${i}].amount=(billData.items[${i}].qty||0)*billData.items[${i}].rate;refreshTotals()"></td>
       ${dc}
       <td style="text-align:right;font-weight:700">₹${amt.toFixed(2)}</td>
       <td class="del" onclick="billData.items.splice(${i},1);refreshTotals()">✕</td>
     </tr>`;
   }).join('');
-  const subRow = discType!=='none' ? `<div class="tr"><span>Subtotal</span><span>₹${t.subtotal.toFixed(2)}</span></div>` : '';
-  const discRow = (t.billDisc>0||t.itemDiscTotal>0) ? `<div class="tr disc"><span>Discount</span><span>- ₹${(t.billDisc+t.itemDiscTotal).toFixed(2)}</span></div>` : '';
-  const gstRow = gstOn ? `<div class="tr"><span>GST (${gstPct}%)</span><span>₹${t.gstAmt.toFixed(2)}</span></div>` : '';
-  document.getElementById('output').innerHTML = `
+
+  const subRow=discType!=='none'?`<div class="tr"><span>Subtotal</span><span>₹${t.subtotal.toFixed(2)}</span></div>`:'';
+  const discRow=(t.billDisc>0||t.itemDiscTotal>0)?`<div class="tr disc"><span>Discount</span><span>- ₹${(t.billDisc+t.itemDiscTotal).toFixed(2)}</span></div>`:'';
+  const gstRow=gstOn?`<div class="tr"><span>GST (${gstPct}%)</span><span>₹${t.gstAmt.toFixed(2)}</span></div>`:'';
+
+  document.getElementById('output').innerHTML=`
     <div class="card">
-      <div class="card-label" style="color:var(--green)">✓ Bill ready — edit anything</div>
+      <div class="card-label" style="color:var(--green)">✓ Bill ready — edit anything below</div>
       <div class="meta-grid">
-        <div class="mg"><label>Party</label><input id="b-party" value="${d.party||''}"></div>
+        <div class="mg"><label>Party / Customer</label><input id="b-party" value="${d.party||''}"></div>
         <div class="mg"><label>Invoice No</label><input id="b-inv" value="${invNo}"></div>
         <div class="mg"><label>Date</label><input id="b-date" value="${d.date||today}"></div>
         <div class="mg"><label>Billing No</label><input id="b-bill" value="${d.billing_no||''}"></div>
@@ -249,47 +290,207 @@ function renderBill(gstOn, gstPct, discType, discVal) {
         <thead><tr><th>#</th><th>Product</th><th>Qty</th><th>Rate</th>${discCol}<th style="text-align:right">Amount</th><th></th></tr></thead>
         <tbody>${rows}</tbody>
       </table>
-      <button class="btn-ghost" style="font-size:13px;margin-bottom:14px" onclick="billData.items.push({product:'New item',qty:1,rate:0,amount:0});refreshTotals()">+ Add item</button>
+      <button class="btn-ghost" style="font-size:12px;margin-bottom:12px;" onclick="billData.items.push({product:'New Item',qty:1,rate:0,amount:0,_matched:false});refreshTotals()">+ Add item</button>
       <div class="totals">${subRow}${discRow}${gstRow}<div class="tr grand"><span>Grand Total</span><span>₹${t.grand.toFixed(2)}</span></div></div>
       <div class="actions">
-        <button class="btn-ghost" onclick="saveAndPrint()">🖨️ Download / Print</button>
+        <button class="btn-ghost" onclick="generatePrint()">🖨️ Download / Print</button>
         <button class="btn-ghost" onclick="shareWhatsApp()">💬 WhatsApp</button>
         <button class="btn-ghost" onclick="location.reload()">↺ Start over</button>
       </div>
     </div>`;
-  preparePrint(t, gstOn, gstPct, invNo);
-  document.getElementById('btn-scan').disabled = false;
+
+  preparePrintData(t,gstOn,gstPct,invNo);
+  document.getElementById('btn-scan').disabled=false;
 }
-function preparePrint(t, gstOn, gstPct, invNo) {
-  const d = billData;
-  const party = document.getElementById('b-party')?.value||d.party||'';
-  const date = document.getElementById('b-date')?.value||new Date().toLocaleDateString('en-IN');
-  const bill = document.getElementById('b-bill')?.value||d.billing_no||'';
-  const rows = d.items.map((it,i)=>`<tr><td style="border:1px solid #999;padding:7px">${i+1}</td><td style="border:1px solid #999;padding:7px">${it.product||''}</td><td style="border:1px solid #999;padding:7px;text-align:right">${it.qty||0}</td><td style="border:1px solid #999;padding:7px;text-align:right">₹${(parseFloat(it.rate)||0).toFixed(2)}</td><td style="border:1px solid #999;padding:7px;text-align:right">₹${(parseFloat(it.amount)||0).toFixed(2)}</td></tr>`).join('');
-  const gstRow = gstOn?`<tr><td colspan="4" style="text-align:right;padding:5px">GST (${gstPct}%)</td><td style="text-align:right;padding:5px">₹${t.gstAmt.toFixed(2)}</td></tr>`:'';
-  const discRow = (t.billDisc>0||t.itemDiscTotal>0)?`<tr><td colspan="4" style="text-align:right;padding:5px;color:green">Discount</td><td style="text-align:right;padding:5px;color:green">- ₹${(t.billDisc+t.itemDiscTotal).toFixed(2)}</td></tr>`:'';
+
+// ── PRINT DATA ──
+function preparePrintData(t,gstOn,gstPct,invNo){
+  window._printData = {
+    t, gstOn, gstPct, invNo,
+    party: document.getElementById('b-party')?.value||'',
+    date: document.getElementById('b-date')?.value||new Date().toLocaleDateString('en-IN'),
+    bill: document.getElementById('b-bill')?.value||'',
+    items: billData.items,
+    fmt: document.getElementById('fmt-choice').value
+  };
+}
+
+function generatePrint(){
+  invoiceCounter++; localStorage.setItem('inv_count', invoiceCounter);
+  const p = window._printData;
+  const fmt = document.getElementById('fmt-choice').value;
+  if(fmt==='mama'){
+    printMamaFormat(p);
+  } else {
+    printSimpleFormat(p);
+  }
+}
+
+// ── MAMA FORMAT (M-143 exact layout) ──
+function printMamaFormat(p){
+  const rows = p.items.map((it,i)=>`
+    <tr>
+      <td>${i+1}</td>
+      <td>${it.product||''}</td>
+      <td></td>
+      <td style="text-align:right">${parseFloat(it.qty||0).toFixed(3)}</td>
+      <td style="text-align:right">${parseFloat(it.rate||0).toFixed(2)}</td>
+      <td></td>
+      <td style="text-align:right">${parseFloat(it.amount||0).toFixed(2)}</td>
+      <td style="text-align:right">${parseFloat(it.amount||0).toFixed(2)}</td>
+      <td></td>
+    </tr>`).join('');
+
+  const grandTotal = p.t.grand;
+  const billAmt = p.t.subtotal;
+
   document.getElementById('print-area').innerHTML = `
-    <div style="font-family:Arial;max-width:700px;margin:auto;color:#1a2b4a">
-      <h1 style="text-align:center;font-family:Georgia,serif">ESTIMATE</h1>
-      <p style="text-align:center;font-size:12px;color:#666;margin-bottom:18px">Tax Invoice / Debit Memo</p>
-      <div style="display:flex;justify-content:space-between;margin-bottom:16px;font-size:13px">
-        <div><b>Party:</b> ${party}<br><b>Billing No:</b> ${bill}</div>
-        <div style="text-align:right"><b>Invoice No:</b> ${invNo}<br><b>Date:</b> ${date}</div>
+    <div style="max-width:740px;margin:auto;font-family:Arial,sans-serif;font-size:11px;color:#000;">
+      
+      <!-- HEADER -->
+      <div style="text-align:center;border-bottom:1.5px solid #000;padding-bottom:6px;margin-bottom:6px;">
+        <div style="font-size:20px;font-weight:bold;letter-spacing:1px;">ESTIMATE</div>
+        <div style="font-size:13px;font-weight:bold;">AHMEDABAD</div>
+        <div style="display:flex;justify-content:space-between;margin-top:4px;font-size:11px;">
+          <span>Debit Memo</span><span>OTHER</span><span>Original</span>
+        </div>
       </div>
-      <table style="width:100%;border-collapse:collapse;font-size:13px;margin-bottom:16px">
-        <thead><tr style="background:#f0f0f0"><th style="border:1px solid #999;padding:7px">#</th><th style="border:1px solid #999;padding:7px;text-align:left">Product</th><th style="border:1px solid #999;padding:7px">Qty</th><th style="border:1px solid #999;padding:7px">Rate</th><th style="border:1px solid #999;padding:7px">Amount</th></tr></thead>
+
+      <!-- PARTY + INVOICE ROW -->
+      <div style="display:flex;justify-content:space-between;margin-bottom:6px;border-bottom:1px solid #ccc;padding-bottom:6px;">
+        <div>
+          <span style="font-weight:bold;">M/s. :</span>
+          <span style="font-size:13px;font-weight:bold;margin-left:6px;">${p.party||'PARTY NAME'}</span><br>
+          <span style="margin-top:3px;display:inline-block">${p.bill ? 'MORBI' : 'MORBI'}</span>
+        </div>
+        <div style="text-align:right;">
+          <div><b>Invoice No. :</b> ${p.invNo}</div>
+          <div style="margin-top:3px;"><b>Date :</b> ${p.date}</div>
+        </div>
+      </div>
+
+      <!-- GST + PLACE -->
+      <div style="margin-bottom:6px;border-bottom:1px solid #ccc;padding-bottom:4px;font-size:10px;">
+        Place of Supply : 24-Gujarat
+      </div>
+
+      <!-- ITEMS TABLE -->
+      <table style="width:100%;border-collapse:collapse;font-size:10.5px;margin-bottom:8px;">
+        <thead>
+          <tr style="background:#f0f0f0;">
+            <th style="border:1px solid #999;padding:5px 4px;width:24px">Sr.</th>
+            <th style="border:1px solid #999;padding:5px 4px;text-align:left;">Product Name</th>
+            <th style="border:1px solid #999;padding:5px 4px;width:38px">HSN/SAC<br>Code</th>
+            <th style="border:1px solid #999;padding:5px 4px;width:46px">Qty</th>
+            <th style="border:1px solid #999;padding:5px 4px;width:46px">Rate</th>
+            <th style="border:1px solid #999;padding:5px 4px;width:38px">Disc.</th>
+            <th style="border:1px solid #999;padding:5px 4px;width:58px">Net<br>Amount</th>
+            <th style="border:1px solid #999;padding:5px 4px;width:58px">Taxable<br>Amount</th>
+            <th style="border:1px solid #999;padding:5px 4px;width:46px">Tax<br>Amount<br>%GST</th>
+          </tr>
+        </thead>
         <tbody>${rows}</tbody>
       </table>
-      <table style="width:300px;margin-left:auto;font-size:13px">${discRow}${gstRow}<tr style="font-weight:700;font-size:16px;border-top:2px solid #000"><td colspan="4" style="text-align:right;padding:7px">Grand Total</td><td style="text-align:right;padding:7px">₹${t.grand.toFixed(2)}</td></tr></table>
-      <p style="margin-top:34px;text-align:right;font-size:13px">For, ESTIMATE<br><br>(Authorised Signatory)</p>
+
+      <!-- TOTALS -->
+      <div style="display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:8px;">
+        <div style="font-size:10px;">
+          <div><b>Total GST :</b></div>
+          <div style="margin-top:4px;">GSTIN No.: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Total</div>
+          <div style="margin-top:2px;">${billAmt.toFixed(2)} &nbsp;&nbsp;&nbsp;&nbsp; ${grandTotal.toFixed(2)} &nbsp;&nbsp;&nbsp;&nbsp; ${grandTotal.toFixed(2)}</div>
+        </div>
+        <div style="text-align:right;">
+          <div style="font-size:11px;margin-bottom:4px;">Bill Amount :</div>
+          <div style="font-size:11px;margin-bottom:4px;">Round Off &nbsp; 0.50</div>
+          <div style="font-size:14px;font-weight:bold;border-top:1.5px solid #000;padding-top:4px;">Grand Total &nbsp;&nbsp; ${grandTotal.toFixed(2)}</div>
+        </div>
+      </div>
+
+      <!-- AMOUNT IN WORDS -->
+      <div style="margin-bottom:8px;font-size:10px;border-top:1px solid #ccc;padding-top:4px;">
+        Bill Amount : <b>${numberToWords(Math.round(grandTotal))} Only</b>
+      </div>
+
+      <!-- SIGNATURE + TERMS -->
+      <div style="border-top:1px solid #ccc;padding-top:8px;display:flex;justify-content:space-between;font-size:10px;">
+        <div>
+          <b>Note :</b><br>
+          <b>Terms & Condition :</b><br>
+          1. Goods once sold will not be taken back.<br>
+          2. Interest @18% p.a. will be charged if payment is not made within due date.<br>
+          3. Our risk and responsibility ceases as soon as the goods leave our premises.<br>
+          4. "Subject to 'AHMEDABAD' Jurisdiction only. E.&amp;O.E"
+        </div>
+        <div style="text-align:right;">
+          For, ESTIMATE<br><br><br>
+          (Authorised Signatory)
+        </div>
+      </div>
     </div>`;
+
+  window.print();
 }
-function saveAndPrint() { invoiceCounter++; localStorage.setItem('invoice_counter', invoiceCounter); window.print(); }
-function shareWhatsApp() {
-  const d = billData; const party = document.getElementById('b-party')?.value||'';
-  let msg = `*BILL*\n`; if (party) msg += `Party: ${party}\n`; msg += `\n`;
-  d.items.forEach((it,i)=>{ msg += `${i+1}. ${it.product} - ${it.qty} x ₹${it.rate} = ₹${(parseFloat(it.amount)||0).toFixed(2)}\n`; });
-  window.open('https://wa.me/?text='+encodeURIComponent(msg), '_blank');
+
+// ── SIMPLE FORMAT ──
+function printSimpleFormat(p){
+  const rows = p.items.map((it,i)=>`<tr>
+    <td style="border:1px solid #ccc;padding:6px">${i+1}</td>
+    <td style="border:1px solid #ccc;padding:6px">${it.product||''}</td>
+    <td style="border:1px solid #ccc;padding:6px;text-align:right">${it.qty||0}</td>
+    <td style="border:1px solid #ccc;padding:6px;text-align:right">₹${parseFloat(it.rate||0).toFixed(2)}</td>
+    <td style="border:1px solid #ccc;padding:6px;text-align:right">₹${parseFloat(it.amount||0).toFixed(2)}</td>
+  </tr>`).join('');
+  const gstRow = p.gstOn?`<tr><td colspan="4" style="text-align:right;padding:5px">GST (${p.gstPct}%)</td><td style="text-align:right;padding:5px">₹${p.t.gstAmt.toFixed(2)}</td></tr>`:'';
+  const discRow = (p.t.billDisc>0||p.t.itemDiscTotal>0)?`<tr><td colspan="4" style="text-align:right;padding:5px;color:green">Discount</td><td style="text-align:right;padding:5px;color:green">-₹${(p.t.billDisc+p.t.itemDiscTotal).toFixed(2)}</td></tr>`:'';
+
+  document.getElementById('print-area').innerHTML = `
+    <div style="font-family:Arial;max-width:700px;margin:auto;color:#1a2b4a">
+      <h1 style="text-align:center;font-family:Georgia,serif;margin-bottom:4px">ESTIMATE</h1>
+      <p style="text-align:center;font-size:12px;color:#666;margin-bottom:16px">Tax Invoice / Debit Memo</p>
+      <div style="display:flex;justify-content:space-between;margin-bottom:14px;font-size:13px">
+        <div><b>Party:</b> ${p.party}<br><b>Billing No:</b> ${p.bill}</div>
+        <div style="text-align:right"><b>Invoice No:</b> ${p.invNo}<br><b>Date:</b> ${p.date}</div>
+      </div>
+      <table style="width:100%;border-collapse:collapse;font-size:13px;margin-bottom:14px">
+        <thead><tr style="background:#f0f0f0">
+          <th style="border:1px solid #ccc;padding:7px">#</th>
+          <th style="border:1px solid #ccc;padding:7px;text-align:left">Product</th>
+          <th style="border:1px solid #ccc;padding:7px">Qty</th>
+          <th style="border:1px solid #ccc;padding:7px">Rate</th>
+          <th style="border:1px solid #ccc;padding:7px">Amount</th>
+        </tr></thead>
+        <tbody>${rows}</tbody>
+      </table>
+      <table style="width:280px;margin-left:auto;font-size:13px">${discRow}${gstRow}
+        <tr style="font-weight:700;font-size:15px;border-top:2px solid #000">
+          <td colspan="4" style="text-align:right;padding:7px">Grand Total</td>
+          <td style="text-align:right;padding:7px">₹${p.t.grand.toFixed(2)}</td>
+        </tr>
+      </table>
+      <p style="margin-top:30px;text-align:right;font-size:13px">For, ESTIMATE<br><br>(Authorised Signatory)</p>
+    </div>`;
+  window.print();
+}
+
+// ── NUMBER TO WORDS ──
+function numberToWords(n){
+  const a=['','One','Two','Three','Four','Five','Six','Seven','Eight','Nine','Ten','Eleven','Twelve','Thirteen','Fourteen','Fifteen','Sixteen','Seventeen','Eighteen','Nineteen'];
+  const b=['','','Twenty','Thirty','Forty','Fifty','Sixty','Seventy','Eighty','Ninety'];
+  if(n===0) return 'Zero';
+  if(n<20) return a[n];
+  if(n<100) return b[Math.floor(n/10)]+(n%10?' '+a[n%10]:'');
+  if(n<1000) return a[Math.floor(n/100)]+' Hundred'+(n%100?' '+numberToWords(n%100):'');
+  if(n<100000) return numberToWords(Math.floor(n/1000))+' Thousand'+(n%1000?' '+numberToWords(n%1000):'');
+  if(n<10000000) return numberToWords(Math.floor(n/100000))+' Lakh'+(n%100000?' '+numberToWords(n%100000):'');
+  return numberToWords(Math.floor(n/10000000))+' Crore'+(n%10000000?' '+numberToWords(n%10000000):'');
+}
+
+// ── WHATSAPP ──
+function shareWhatsApp(){
+  const d=billData; const party=document.getElementById('b-party')?.value||'';
+  let msg=`*BILL*\n`; if(party) msg+=`Party: ${party}\n`; msg+=`\n`;
+  d.items.forEach((it,i)=>{ msg+=`${i+1}. ${it.product} — ${it.qty} x ₹${it.rate} = ₹${parseFloat(it.amount||0).toFixed(2)}\n`; });
+  window.open('https://wa.me/?text='+encodeURIComponent(msg),'_blank');
 }
 </script>
 </body>
