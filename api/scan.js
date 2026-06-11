@@ -28,14 +28,22 @@ THE 9 VALID TYPES (memorize these — every item belongs to one):
 HANDWRITING PATTERNS IN THESE BILLS:
 - Type is written at LEFT of each line, often abbreviated: "F/M", "Visor", "TIP" (=T.P.), "SIP" (=S.P.), "H/L"
 - Type may be written ONCE then ditto marks (") or dashes for following lines — those lines have SAME type as line above
-- Products: SPL/SPLANDOR=Splendor, DLX=Deluxe, N/M=New Model, A/W=All Weather, HF=Hero HF, CT100, PLATINA, PULSAR, DISCOVER, MAESTRO, PLEASURE, ACTIVA
-- Quantity: "15 Pc", "10 Pc", "7 Set", "2 set" — extract NUMBER only
-- Rate: per-piece price, usually 2-4 digits (85 to 1500 range)
-- Amount: qty × rate, at far right
-- Numbers: 1 and 7 look similar, 4 and 9 look similar — use qty×rate=amount to verify your reading
+- Products: SPL/SPLANDOR=Splendor, DLX=Deluxe, N/M=New Model, A/W=All Weather, HF=Hero HF, CT100, PLATINA, PULSAR, DISCOVER, MAESTRO, PLEASURE, ACTIVA, SHINE, DREAM, BOXER
 - Bottom of bill may have: BILLING NO, TAX, TOTAL, party name, date
 
-SELF-CHECK RULE: For every line verify qty × rate = amount. If it does not match, re-read the numbers — one of them is wrong.
+COLUMN ORDER — READ CAREFULLY, THIS IS WHERE MISTAKES HAPPEN:
+Each line reads LEFT to RIGHT: [Type] [Product] [QTY] [RATE] [AMOUNT]
+- QTY is the SMALL number: almost always 1 to 50 pieces. Written as "15 Pc", "7 Set", "2 st", or just a small number.
+- RATE is the MEDIUM number: price per piece, usually 85 to 1500.
+- AMOUNT is the LARGEST number, at FAR RIGHT of the line.
+- NEVER put the same number in both qty and rate. If you find yourself writing qty=250 rate=250, you misread — go back and re-read that line.
+- If qty looks bigger than 50, you probably grabbed the RATE by mistake. The small number near "Pc"/"Set" is the qty.
+- Numbers: 1 and 7 look similar, 4 and 9 look similar.
+
+MANDATORY SELF-CHECK before final answer — for EVERY line:
+1. Does qty × rate = amount? If not, one number is wrong.
+2. The AMOUNT written on the page is the truth. Derive qty = amount ÷ rate. If that gives a clean small number (1-50), use that as qty.
+3. Is qty between 1 and 50? If qty > 100, you misread — fix it using amount ÷ rate.
 
 MULTI-PAGE: If multiple images, they are pages of ONE bill. Combine ALL items in order.
 
@@ -87,5 +95,3 @@ CRITICAL: "type" and "product" are SEPARATE fields. Example: handwritten "F/M CD
     return res.status(500).json({ error: e.message });
   }
 }
-
-
