@@ -64,6 +64,23 @@
   #print-area{display:none;}
 
   /* ═══ HIGH QUALITY PRINT CSS ═══ */
+
+  .nav-links{display:flex;align-items:center;gap:22px;}
+  .nav-links a{color:var(--ink-soft);text-decoration:none;font-size:14px;font-weight:500;}
+  .nav-links a:hover{color:var(--ink);}
+  .nav-cta{background:var(--ink);color:var(--paper)!important;padding:9px 18px;border-radius:9px;font-weight:700!important;}
+  .hamburger{display:none;background:none;border:none;font-size:24px;cursor:pointer;color:var(--ink);}
+  footer.site-foot{background:var(--ink);color:rgba(250,247,240,.8);margin-top:60px;}
+  .foot-inner{max-width:980px;margin:0 auto;padding:36px 22px 24px;}
+  .foot-bottom{text-align:center;font-size:13px;color:rgba(250,247,240,.55);}
+  .foot-bottom a{color:rgba(250,247,240,.75);text-decoration:none;margin:0 10px;}
+  .foot-bottom a:hover{color:var(--accent-warm);}
+  @media(max-width:760px){
+    .nav-links{display:none;position:absolute;top:100%;left:0;right:0;background:var(--paper);flex-direction:column;padding:18px 22px;gap:16px;border-bottom:1px solid var(--paper-line);align-items:flex-start;z-index:99;}
+    .nav-links.open{display:flex;}
+    .hamburger{display:block;}
+  }
+  nav{position:relative;}
   @media print{
     @page { size: A4; margin: 10mm; }
     body{background:#fff !important;}
@@ -79,7 +96,13 @@
 <nav>
   <div class="nav-inner">
     <a href="index.html" class="logo"><span class="logo-mark"></span> BillScan</a>
-    <a href="index.html" style="color:var(--ink-soft);text-decoration:none;font-size:14px;font-weight:500;">← Home</a>
+    <button class="hamburger" onclick="document.getElementById('nl').classList.toggle('open')">☰</button>
+    <div class="nav-links" id="nl">
+      <a href="index.html">Home</a>
+      <a href="about.html">About Us</a>
+      <a href="contact.html">Contact</a>
+      <a href="app.html" class="nav-cta active-app">App</a>
+    </div>
   </div>
 </nav>
 
@@ -141,6 +164,17 @@
 </div>
 
 <div id="print-area"></div>
+
+<footer class="site-foot">
+  <div class="foot-inner">
+    <div class="foot-bottom">
+      <div style="margin-bottom:10px;">
+        <a href="index.html">Home</a> · <a href="about.html">About</a> · <a href="contact.html">Contact</a> · <a href="https://wa.me/919737998717" target="_blank">WhatsApp</a>
+      </div>
+      © 2026 BillScan · Made with ❤️ in Ahmedabad
+    </div>
+  </div>
+</footer>
 
 <script>
 // ═══ PRODUCT MASTER LIST — 666 items, 9 types ═══
