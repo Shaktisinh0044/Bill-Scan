@@ -163,15 +163,15 @@ function sim(a, b){
   return m / Math.max(a.length, b.length);
 }
 function findMatch(scannedType, scannedName){
+  // Match by NAME only — photo prices are discounted, list prices are full MRP
   let best = null, bestScore = 0;
   for(const p of PRODUCTS){
-    // type must roughly match if provided
     const typeOk = !scannedType || sim(scannedType, p.t) > 0.5;
     if(!typeOk) continue;
     const s = sim(scannedName, p.n);
     if(s > bestScore && s > 0.45){ bestScore = s; best = p; }
   }
-  return best ? { type: best.t, product: best.n, price: best.p, score: bestScore } : null;
+  return best ? { type: best.t, product: best.n, listPrice: best.p, score: bestScore } : null;
 }
 
 // ═══ UPLOADS ═══
@@ -214,17 +214,25 @@ async function runScan(){
       btn.disabled = false; return;
     }
 
-    // Fuzzy match each item against 666-product master list
+    // Fuzzy match by NAME only — ALWAYS trust photo price (it is the discounted price)
     parsed.items = (parsed.items||[]).map(it => {
       const match = findMatch(it.type, it.product);
       if(match && match.score > 0.55){
-        const rate = it.rate > 0 ? it.rate : match.price;
-        return { ...it, type: match.type, product: match.product, rate: rate, amount: (it.qty||0) * rate, _matched: true };
+        const photoRate = it.rate > 0 ? it.rate : match.listPrice; // photo price wins
+        const fullRate = match.listPrice; // MRP from your Excel
+        // Auto-calculate discount % (like M-143 supplier bills: Rate 330, Disc 55%, Net 165)
+        let discPct = 0;
+        if(fullRate > 0 && photoRate < fullRate){
+          discPct = ((fullRate - photoRate) / fullRate) * 100;
+        }
+        return { ...it, type: match.type, product: match.product,
+                 rate: photoRate, fullRate: fullRate, discPct: discPct,
+                 amount: (it.qty||0) * photoRate, _matched: true };
       }
-      // type fallback — snap to closest valid type
+      // no match — keep photo data as-is, snap type to closest valid
       let bestT = it.type || 'F/M', bestS = 0;
       for(const t of TYPES){ const s = sim(it.type, t); if(s > bestS){ bestS = s; bestT = t; } }
-      return { ...it, type: bestS > 0.4 ? bestT : (it.type||'F/M'), _matched: false };
+      return { ...it, type: bestS > 0.4 ? bestT : (it.type||'F/M'), fullRate: 0, discPct: 0, _matched: false };
     });
 
     billData = parsed;
@@ -271,13 +279,13 @@ function renderBill(gstOn,gstPct,discType,discVal){
   const rows=d.items.map((it,i)=>{
     const dc=discType==='item_pct'?`<td><input type="number" value="${discVal}" style="width:45px" onchange="refreshTotals()"></td>`:'';
     const amt=discType==='item_pct'?(it._net||0):(parseFloat(it.amount)||0);
-    const badge=it._matched?'<span class="match-badge">matched</span>':'';
+    const badge=it._matched?(it.discPct>0?`<span class="match-badge">MRP ₹${it.fullRate} · ${it.discPct.toFixed(0)}% off</span>`:'<span class="match-badge">matched</span>'):'';
     return `<tr>
       <td style="color:var(--gray);font-size:12px">${i+1}</td>
       <td style="min-width:110px"><select onchange="billData.items[${i}].type=this.value">${typeOptions(it.type)}</select></td>
       <td><input value="${(it.product||'').replace(/"/g,'&quot;')}" onchange="billData.items[${i}].product=this.value">${badge}</td>
       <td><input type="number" value="${it.qty||0}" style="width:50px" onchange="billData.items[${i}].qty=parseFloat(this.value)||0;billData.items[${i}].amount=billData.items[${i}].qty*(billData.items[${i}].rate||0);refreshTotals()"></td>
-      <td><input type="number" value="${it.rate||0}" style="width:65px" onchange="billData.items[${i}].rate=parseFloat(this.value)||0;billData.items[${i}].amount=(billData.items[${i}].qty||0)*billData.items[${i}].rate;refreshTotals()"></td>
+      <td><input type="number" value="${it.rate||0}" style="width:65px" onchange="const it=billData.items[${i}];it.rate=parseFloat(this.value)||0;it.amount=(it.qty||0)*it.rate;if(it.fullRate>0&&it.rate<it.fullRate){it.discPct=((it.fullRate-it.rate)/it.fullRate)*100}else{it.discPct=0};refreshTotals()"></td>
       ${dc}
       <td style="text-align:right;font-weight:700">₹${amt.toFixed(2)}</td>
       <td class="del" onclick="billData.items.splice(${i},1);refreshTotals()">✕</td>
@@ -332,18 +340,25 @@ function generatePrint(){
 // ── MAMA FORMAT — strong borders, bold, exact M-143 layout ──
 function printMama(p){
   const B = '1.2px solid #000';
-  const rows = p.items.map((it,i)=>`
+  const rows = p.items.map((it,i)=>{
+    // Like M-143: Rate column = full MRP, Disc = auto-calculated %, Net = actual photo amount
+    const hasFull = it.fullRate > 0 && it.discPct > 0;
+    const rateShown = hasFull ? it.fullRate : (parseFloat(it.rate)||0);
+    const discShown = hasFull ? it.discPct.toFixed(2)+'%' : '';
+    const netAmt = parseFloat(it._net!=null?it._net:it.amount||0);
+    return `
     <tr>
       <td style="border:${B};padding:5px 4px;text-align:center;font-size:11px">${i+1}</td>
       <td style="border:${B};padding:5px 6px;font-size:11px;font-weight:600">${it.type||''}</td>
       <td style="border:${B};padding:5px 6px;font-size:11px;font-weight:600">${it.product||''}</td>
       <td style="border:${B};padding:5px 4px;text-align:right;font-size:11px">${parseFloat(it.qty||0).toFixed(3)}</td>
-      <td style="border:${B};padding:5px 4px;text-align:right;font-size:11px">${parseFloat(it.rate||0).toFixed(2)}</td>
-      <td style="border:${B};padding:5px 4px;text-align:right;font-size:11px">${(it._disc?((it._disc/(parseFloat(it.amount)||1))*100).toFixed(2)+'%':'')}</td>
-      <td style="border:${B};padding:5px 4px;text-align:right;font-size:11px;font-weight:600">${parseFloat(it._net!=null?it._net:it.amount||0).toFixed(2)}</td>
-      <td style="border:${B};padding:5px 4px;text-align:right;font-size:11px">${parseFloat(it._net!=null?it._net:it.amount||0).toFixed(2)}</td>
+      <td style="border:${B};padding:5px 4px;text-align:right;font-size:11px">${rateShown.toFixed(2)}</td>
+      <td style="border:${B};padding:5px 4px;text-align:right;font-size:11px">${discShown}</td>
+      <td style="border:${B};padding:5px 4px;text-align:right;font-size:11px;font-weight:600">${netAmt.toFixed(2)}</td>
+      <td style="border:${B};padding:5px 4px;text-align:right;font-size:11px">${netAmt.toFixed(2)}</td>
       <td style="border:${B};padding:5px 4px;font-size:11px"></td>
-    </tr>`).join('');
+    </tr>`;
+  }).join('');
 
   const grand = p.t.grand;
   const roundedGrand = Math.round(grand);
