@@ -61,6 +61,12 @@
   .del{color:var(--red);cursor:pointer;font-weight:700;text-align:center;font-size:16px;}
   .actions{display:flex;gap:8px;margin-top:14px;flex-wrap:wrap;}
   .match-badge{font-size:10px;background:#eff6ff;color:var(--accent);padding:1px 6px;border-radius:10px;margin-left:4px;font-weight:600;}
+  .man-tag{font-size:10px;background:#fef3e2;color:#b45309;padding:1px 7px;border-radius:10px;font-weight:700;margin-left:5px;vertical-align:middle;}
+  .tot-edit{background:none;border:none;cursor:pointer;font-size:12px;padding:1px 3px;opacity:.6;}
+  .tot-edit:hover{opacity:1;}
+  .tot-input{width:110px;border:1.5px solid var(--accent);border-radius:6px;padding:4px 8px;font-size:14px;font-weight:700;font-family:inherit;}
+  .tot-ok{background:var(--green);color:#fff;border:none;border-radius:6px;padding:4px 10px;font-size:13px;font-weight:700;cursor:pointer;}
+  .tot-cancel{background:#e5e7eb;color:var(--ink);border:none;border-radius:6px;padding:4px 10px;font-size:13px;cursor:pointer;}
   #print-area{display:none;}
 
   /* ═══ HIGH QUALITY PRINT CSS ═══ */
@@ -182,6 +188,7 @@ const PRODUCTS = [{"t": "H/L VISOR", "n": "SPLANDOR", "p": 216.0}, {"t": "H/L VI
 const TYPES = ["F/M","H/L VISOR","H.L. VISOR GLASS","T.P.","S.P.","FRONT COWL","LOWER","MITOR COVER","CROME PATTI"];
 
 let pages = [], billData = null, invoiceCounter = 1;
+let manualSubtotal = null, manualGrand = null; // manual overrides — null = auto
 window.onload = () => { const s = localStorage.getItem('inv_count'); if(s) invoiceCounter = parseInt(s); };
 
 // ═══ FUZZY MATCHING ═══
@@ -269,6 +276,7 @@ async function runScan(){
       return { ...it, type: bestS > 0.4 ? bestT : (it.type||'F/M'), fullRate: 0, discPct: 0, _matched: false };
     });
 
+    manualSubtotal = null; manualGrand = null; // fresh scan = fresh totals
     billData = parsed;
     refreshTotals();
   } catch(e) {
@@ -288,9 +296,15 @@ function calcTotals(items, gstOn, gstPct, discType, discVal){
   let billDisc=0;
   if(discType==='total_pct') billDisc=subtotal*discVal/100;
   if(discType==='total_flat') billDisc=discVal;
-  const taxable=subtotal-itemDiscTotal-billDisc;
+  // Manual subtotal override — locked even if items change
+  const effSubtotal = manualSubtotal!=null ? manualSubtotal : subtotal;
+  const taxable=effSubtotal-itemDiscTotal-billDisc;
   const gstAmt=gstOn?taxable*gstPct/100:0;
-  return {subtotal,itemDiscTotal,billDisc,taxable,gstAmt,grand:taxable+gstAmt};
+  // Manual grand override — final, locked
+  const autoGrand = taxable+gstAmt;
+  const grand = manualGrand!=null ? manualGrand : autoGrand;
+  return {subtotal:effSubtotal,itemDiscTotal,billDisc,taxable,gstAmt,grand,
+          subManual:manualSubtotal!=null, grandManual:manualGrand!=null};
 }
 function refreshTotals(){
   const gstOn=document.getElementById('gst-choice').value==='yes';
@@ -326,7 +340,8 @@ function renderBill(gstOn,gstPct,discType,discVal){
     </tr>`;
   }).join('');
 
-  const subRow=discType!=='none'?`<div class="tr"><span>Subtotal</span><span>₹${t.subtotal.toFixed(2)}</span></div>`:'';
+  const subRow=`<div class="tr"><span>Subtotal ${t.subManual?'<span class="man-tag">manual</span>':''}</span><span id="sub-view">₹${t.subtotal.toFixed(2)} <button class="tot-edit" onclick="editTotal('sub')" title="Edit subtotal">✏️</button>${t.subManual?'<button class="tot-edit" onclick="resetTotal(\'sub\')" title="Back to auto">↺</button>':''}</span></div>
+  <div class="tr" id="sub-editrow" style="display:none"><span>Subtotal</span><span><input type="number" id="sub-input" class="tot-input" value="${t.subtotal.toFixed(2)}"> <button class="tot-ok" onclick="saveTotal('sub')">✓</button> <button class="tot-cancel" onclick="cancelTotal('sub')">✕</button></span></div>`;
   const discRow=(t.billDisc>0||t.itemDiscTotal>0)?`<div class="tr disc"><span>Discount</span><span>- ₹${(t.billDisc+t.itemDiscTotal).toFixed(2)}</span></div>`:'';
   const gstRow=gstOn?`<div class="tr"><span>GST (${gstPct}%)</span><span>₹${t.gstAmt.toFixed(2)}</span></div>`:'';
 
@@ -344,7 +359,10 @@ function renderBill(gstOn,gstPct,discType,discVal){
         <tbody>${rows}</tbody>
       </table>
       <button class="btn-ghost" style="font-size:12px;margin-bottom:12px;" onclick="billData.items.push({type:'F/M',product:'New Item',qty:1,rate:0,amount:0,_matched:false});refreshTotals()">+ Add item</button>
-      <div class="totals">${subRow}${discRow}${gstRow}<div class="tr grand"><span>Grand Total</span><span>₹${t.grand.toFixed(2)}</span></div></div>
+      <div class="totals">${subRow}${discRow}${gstRow}
+        <div class="tr grand"><span>Grand Total ${t.grandManual?'<span class="man-tag">manual</span>':''}</span><span id="grand-view">₹${t.grand.toFixed(2)} <button class="tot-edit" onclick="editTotal('grand')" title="Edit grand total">✏️</button>${t.grandManual?'<button class="tot-edit" onclick="resetTotal(\'grand\')" title="Back to auto">↺</button>':''}</span></div>
+        <div class="tr grand" id="grand-editrow" style="display:none"><span>Grand Total</span><span><input type="number" id="grand-input" class="tot-input" value="${t.grand.toFixed(2)}"> <button class="tot-ok" onclick="saveTotal('grand')">✓</button> <button class="tot-cancel" onclick="cancelTotal('grand')">✕</button></span></div>
+      </div>
       <div class="actions">
         <button class="btn-ghost" onclick="generatePrint()">🖨️ Download / Print</button>
         <button class="btn-ghost" onclick="shareWhatsApp()">💬 WhatsApp</button>
@@ -354,6 +372,28 @@ function renderBill(gstOn,gstPct,discType,discVal){
 
   window._totals = t; window._gstOn = gstOn; window._gstPct = gstPct;
   document.getElementById('btn-scan').disabled=false;
+}
+
+// ═══ EDITABLE TOTALS ═══
+function editTotal(which){
+  document.getElementById(which+'-view').parentElement.style.display='none';
+  document.getElementById(which+'-editrow').style.display='flex';
+  document.getElementById(which+'-input').focus();
+}
+function saveTotal(which){
+  const v = parseFloat(document.getElementById(which+'-input').value);
+  if(isNaN(v) || v < 0){ alert('Enter a valid amount'); return; }
+  if(which==='sub') manualSubtotal = v;
+  if(which==='grand') manualGrand = v;
+  refreshTotals();
+}
+function cancelTotal(which){
+  refreshTotals();
+}
+function resetTotal(which){
+  if(which==='sub') manualSubtotal = null;
+  if(which==='grand') manualGrand = null;
+  refreshTotals();
 }
 
 // ═══ PRINT — HIGH QUALITY ═══
