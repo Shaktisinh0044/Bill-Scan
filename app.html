@@ -62,6 +62,7 @@
   .actions{display:flex;gap:8px;margin-top:14px;flex-wrap:wrap;}
   .match-badge{font-size:10px;background:#eff6ff;color:var(--accent);padding:1px 6px;border-radius:10px;margin-left:4px;font-weight:600;}
   .man-tag{font-size:10px;background:#fef3e2;color:#b45309;padding:1px 7px;border-radius:10px;font-weight:700;margin-left:5px;vertical-align:middle;}
+  .check-badge{font-size:10px;background:#fef2f2;color:#b91c1c;padding:1px 7px;border-radius:10px;font-weight:700;margin-left:4px;}
   .tot-edit{background:none;border:none;cursor:pointer;font-size:12px;padding:1px 3px;opacity:.6;}
   .tot-edit:hover{opacity:1;}
   .tot-input{width:110px;border:1.5px solid var(--accent);border-radius:6px;padding:4px 8px;font-size:14px;font-weight:700;font-family:inherit;}
@@ -256,24 +257,51 @@ async function runScan(){
     }
 
     // Fuzzy match by NAME only — ALWAYS trust photo price (it is the discounted price)
+    // CRITICAL: never overwrite the amount AI read from photo — photo amount is source of truth
     parsed.items = (parsed.items||[]).map(it => {
+      let qty = parseFloat(it.qty)||0, rate = parseFloat(it.rate)||0, amt = parseFloat(it.amount)||0;
+
+      // ── SANITY REPAIR: AI sometimes misreads the qty column ──
+      // Rule: the AMOUNT on the page is truth. If qty × rate ≠ amount,
+      // derive qty = amount ÷ rate. Accept it when it is a clean count (1-100).
+      if(rate > 0 && amt > 0){
+        const mismatch = Math.abs(qty * rate - amt) > amt * 0.02;
+        if(qty <= 0 || mismatch || qty === rate || qty > 100){
+          const derived = amt / rate;
+          const rounded = Math.round(derived);
+          if(rounded >= 1 && rounded <= 100 && Math.abs(derived - rounded) < 0.05){
+            qty = rounded; // clean integer count — repaired
+          }
+        }
+      }
+
       const match = findMatch(it.type, it.product);
+      let result;
       if(match && match.score > 0.55){
-        const photoRate = it.rate > 0 ? it.rate : match.listPrice; // photo price wins
-        const fullRate = match.listPrice; // MRP from your Excel
-        // Auto-calculate discount % (like M-143 supplier bills: Rate 330, Disc 55%, Net 165)
+        const photoRate = rate > 0 ? rate : match.listPrice; // photo price wins
+        const fullRate = match.listPrice;
         let discPct = 0;
         if(fullRate > 0 && photoRate < fullRate){
           discPct = ((fullRate - photoRate) / fullRate) * 100;
         }
-        return { ...it, type: match.type, product: match.product,
-                 rate: photoRate, fullRate: fullRate, discPct: discPct,
-                 amount: (it.qty||0) * photoRate, _matched: true };
+        // amount: photo amount is truth; compute only if missing
+        const amount = amt > 0 ? amt : qty * photoRate;
+        result = { ...it, qty, type: match.type, product: match.product,
+                   rate: photoRate, fullRate, discPct, amount, _matched: true };
+      } else {
+        let bestT = it.type || 'F/M', bestS = 0;
+        for(const t of TYPES){ const s = sim(it.type, t); if(s > bestS){ bestS = s; bestT = t; } }
+        const amount = amt > 0 ? amt : qty * rate;
+        result = { ...it, qty, rate, amount, type: bestS > 0.4 ? bestT : (it.type||'F/M'),
+                   fullRate: 0, discPct: 0, _matched: false };
       }
-      // no match — keep photo data as-is, snap type to closest valid
-      let bestT = it.type || 'F/M', bestS = 0;
-      for(const t of TYPES){ const s = sim(it.type, t); if(s > bestS){ bestS = s; bestT = t; } }
-      return { ...it, type: bestS > 0.4 ? bestT : (it.type||'F/M'), fullRate: 0, discPct: 0, _matched: false };
+
+      // ── VALIDATION FLAG: qty × rate should ≈ amount; if not, mark for user review ──
+      const expected = (result.qty||0) * (result.rate||0);
+      const actual = parseFloat(result.amount)||0;
+      result._check = actual > 0 && expected > 0 && Math.abs(expected - actual) > actual * 0.02;
+      if((result.qty||0) > 100) result._check = true; // unrealistic qty — review
+      return result;
     });
 
     manualSubtotal = null; manualGrand = null; // fresh scan = fresh totals
@@ -327,13 +355,13 @@ function renderBill(gstOn,gstPct,discType,discVal){
   const rows=d.items.map((it,i)=>{
     const dc=discType==='item_pct'?`<td><input type="number" value="${discVal}" style="width:45px" onchange="refreshTotals()"></td>`:'';
     const amt=discType==='item_pct'?(it._net||0):(parseFloat(it.amount)||0);
-    const badge=it._matched?(it.discPct>0?`<span class="match-badge">MRP ₹${it.fullRate} · ${it.discPct.toFixed(0)}% off</span>`:'<span class="match-badge">matched</span>'):'';
+    const badge=(it._matched?(it.discPct>0?`<span class="match-badge">MRP ₹${it.fullRate} · ${it.discPct.toFixed(0)}% off</span>`:'<span class="match-badge">matched</span>'):'') + (it._check?'<span class="check-badge">⚠ check</span>':'');
     return `<tr>
       <td style="color:var(--gray);font-size:12px">${i+1}</td>
       <td style="min-width:110px"><select onchange="billData.items[${i}].type=this.value">${typeOptions(it.type)}</select></td>
       <td><input value="${(it.product||'').replace(/"/g,'&quot;')}" onchange="billData.items[${i}].product=this.value">${badge}</td>
-      <td><input type="number" value="${it.qty||0}" style="width:50px" onchange="billData.items[${i}].qty=parseFloat(this.value)||0;billData.items[${i}].amount=billData.items[${i}].qty*(billData.items[${i}].rate||0);refreshTotals()"></td>
-      <td><input type="number" value="${it.rate||0}" style="width:65px" onchange="const it=billData.items[${i}];it.rate=parseFloat(this.value)||0;it.amount=(it.qty||0)*it.rate;if(it.fullRate>0&&it.rate<it.fullRate){it.discPct=((it.fullRate-it.rate)/it.fullRate)*100}else{it.discPct=0};refreshTotals()"></td>
+      <td><input type="number" value="${it.qty||0}" style="width:50px" onchange="const q=billData.items[${i}];q.qty=parseFloat(this.value)||0;q.amount=q.qty*(q.rate||0);q._check=false;refreshTotals()"></td>
+      <td><input type="number" value="${it.rate||0}" style="width:65px" onchange="const it=billData.items[${i}];it.rate=parseFloat(this.value)||0;it.amount=(it.qty||0)*it.rate;it._check=false;if(it.fullRate>0&&it.rate<it.fullRate){it.discPct=((it.fullRate-it.rate)/it.fullRate)*100}else{it.discPct=0};refreshTotals()"></td>
       ${dc}
       <td style="text-align:right;font-weight:700">₹${amt.toFixed(2)}</td>
       <td class="del" onclick="billData.items.splice(${i},1);refreshTotals()">✕</td>
