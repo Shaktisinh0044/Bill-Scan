@@ -13,11 +13,11 @@
   *{box-sizing:border-box;margin:0;padding:0;}
   body{font-family:'DM Sans',system-ui,sans-serif;background:var(--paper);color:var(--ink);font-size:14px;line-height:1.5;}
   nav{background:var(--white);border-bottom:1px solid var(--paper-line);}
-  .nav-inner{display:flex;align-items:center;justify-content:space-between;padding:14px 24px;max-width:960px;margin:0 auto;}
+  .nav-inner{display:flex;align-items:center;justify-content:space-between;padding:14px 24px;max-width:980px;margin:0 auto;}
   .logo{font-family:'Fraunces',serif;font-size:20px;font-weight:700;display:flex;align-items:center;gap:8px;text-decoration:none;color:var(--ink);}
   .logo-mark{width:24px;height:24px;background:var(--ink);border-radius:6px;position:relative;}
   .logo-mark::after{content:'';position:absolute;inset:5px 5px auto 5px;height:2px;background:var(--accent-warm);box-shadow:0 4px 0 var(--white),0 7px 0 var(--accent-warm);}
-  .main{max-width:960px;margin:24px auto;padding:0 20px;}
+  .main{max-width:980px;margin:24px auto;padding:0 20px;}
   .page-title{font-family:'Fraunces',serif;font-size:26px;font-weight:700;margin-bottom:4px;}
   .page-sub{color:var(--ink-soft);margin-bottom:20px;font-size:14px;}
   .card{background:var(--white);border:1px solid var(--paper-line);border-radius:14px;padding:20px;margin-bottom:14px;}
@@ -44,10 +44,11 @@
   .spinner{display:inline-block;width:15px;height:15px;border:2px solid var(--paper-line);border-top-color:var(--accent);border-radius:50%;animation:spin .7s linear infinite;margin-right:6px;vertical-align:middle;}
   @keyframes spin{to{transform:rotate(360deg)}}
   table{width:100%;border-collapse:collapse;font-size:13px;margin-bottom:10px;}
-  th{background:var(--paper);padding:8px 10px;text-align:left;font-weight:700;font-size:11px;text-transform:uppercase;letter-spacing:.04em;color:var(--ink-soft);border-bottom:1px solid var(--paper-line);}
-  td{padding:7px 10px;border-bottom:1px solid var(--paper-line);}
-  td input{width:100%;border:none;background:transparent;font-size:13px;font-family:inherit;color:var(--ink);}
-  td input:focus{outline:1px solid var(--accent);border-radius:3px;}
+  th{background:var(--paper);padding:8px 8px;text-align:left;font-weight:700;font-size:11px;text-transform:uppercase;letter-spacing:.04em;color:var(--ink-soft);border-bottom:1px solid var(--paper-line);}
+  td{padding:7px 8px;border-bottom:1px solid var(--paper-line);}
+  td input,td select{width:100%;border:none;background:transparent;font-size:13px;font-family:inherit;color:var(--ink);}
+  td input:focus,td select:focus{outline:1px solid var(--accent);border-radius:3px;}
+  td select{border:1px solid var(--paper-line);border-radius:5px;padding:3px;}
   .totals{width:300px;margin-left:auto;}
   .totals .tr{display:flex;justify-content:space-between;padding:5px 0;font-size:13px;color:var(--ink-soft);}
   .totals .tr.disc{color:var(--green);}
@@ -61,8 +62,16 @@
   .actions{display:flex;gap:8px;margin-top:14px;flex-wrap:wrap;}
   .match-badge{font-size:10px;background:#eff6ff;color:var(--accent);padding:1px 6px;border-radius:10px;margin-left:4px;font-weight:600;}
   #print-area{display:none;}
-  @media print{body>*:not(#print-area){display:none!important;}#print-area{display:block!important;padding:20px;font-family:Arial,sans-serif;}}
-  @media(max-width:600px){.totals{width:100%;}}
+
+  /* ═══ HIGH QUALITY PRINT CSS ═══ */
+  @media print{
+    @page { size: A4; margin: 10mm; }
+    body{background:#fff !important;}
+    body>*:not(#print-area){display:none!important;}
+    #print-area{display:block!important;font-family:Arial,Helvetica,sans-serif;color:#000 !important;
+      -webkit-print-color-adjust:exact !important; print-color-adjust:exact !important;}
+    #print-area *{-webkit-print-color-adjust:exact !important; print-color-adjust:exact !important;}
+  }
 </style>
 </head>
 <body>
@@ -78,21 +87,17 @@
   <div class="page-title">Make a bill</div>
   <div class="page-sub">Upload your bill photo — BillScan reads it and fills it in automatically.</div>
 
-  <!-- STEP 1 FORMAT -->
   <div class="card">
     <div class="card-label"><span class="card-num">1</span> Choose output format</div>
     <div class="row">
       <label>Format</label>
       <select id="fmt-choice">
         <option value="mama">Mama Format (M-143 Estimate)</option>
-        <option value="default1">Simple Estimate</option>
-        <option value="default2">Tax Invoice (GST)</option>
-        <option value="default3">Basic Cash Bill</option>
+        <option value="simple">Simple Estimate</option>
       </select>
     </div>
   </div>
 
-  <!-- STEP 2 PHOTOS -->
   <div class="card">
     <div class="card-label"><span class="card-num">2</span> Bill photo(s)</div>
     <div id="pages-list"></div>
@@ -104,7 +109,6 @@
     </div>
   </div>
 
-  <!-- STEP 3 OPTIONS -->
   <div class="card">
     <div class="card-label"><span class="card-num">3</span> Options</div>
     <div class="row">
@@ -139,33 +143,38 @@
 <div id="print-area"></div>
 
 <script>
-// ── PRODUCT MASTER LIST (277 items) ──
-const PRODUCTS = [{"cat": "H/L VISOR", "name": "SPLANDOR / 216", "price": 216.0}, {"cat": "H/L VISOR", "name": "SPLANDOR (A/W)", "price": 240.0}, {"cat": "H/L VISOR", "name": "SPLANDOR HERO", "price": 250.0}, {"cat": "H/L VISOR", "name": "SPL. PRO (S/P. LUCK AGE PICHHE)", "price": 260.0}, {"cat": "H/L VISOR", "name": "SPL PRO HERO [S/P.1.SIDE BOLT & LUCK]", "price": 260.0}, {"cat": "H/L VISOR", "name": "SPLENDOR 1.3.S [S/P TWO SIDE BOLT]", "price": 260.0}, {"cat": "H/L VISOR", "name": "SPL B.S.6 [S/P TWO SIDE BOLT]", "price": 270.0}, {"cat": "H/L VISOR", "name": "SPL PRO (N/M) 2016 GLS WALI", "price": 540.0}, {"cat": "H/L VISOR", "name": "I SMART", "price": 620.0}, {"cat": "H/L VISOR", "name": "I SMART (N/M)", "price": 720.0}, {"cat": "H/L VISOR", "name": "SPLENDOR NXG", "price": 500.0}, {"cat": "H/L VISOR", "name": "PASSION (O/M)", "price": 340.0}, {"cat": "H/L VISOR", "name": "PASSION (A/W)", "price": 340.0}, {"cat": "H/L VISOR", "name": "PASSION PRO", "price": 540.0}, {"cat": "H/L VISOR", "name": "PASSION PRO DIZITELS", "price": 540.0}, {"cat": "H/L VISOR", "name": "PASSION PRO (N/M) 2016", "price": 540.0}, {"cat": "H/L VISOR", "name": "PASSION 2020 PRO BS6", "price": 740.0}, {"cat": "H/L VISOR", "name": "PASSION X. PRO", "price": 640.0}, {"cat": "H/L VISOR", "name": "PASSION X. PRO (N/M)", "price": 760.0}, {"cat": "H/L VISOR", "name": "CD DOWN & CD DLX (O/M)", "price": 320.0}, {"cat": "H/L VISOR", "name": "CD DLX & HF DLX 2010 TO 2014", "price": 340.0}, {"cat": "H/L VISOR", "name": "HF DLX LETOST 2016", "price": 340.0}, {"cat": "H/L VISOR", "name": "HF DLX LETOST T/4", "price": 350.0}, {"cat": "H/L VISOR", "name": "HF DLX LETOST 1.3.S", "price": 360.0}, {"cat": "H/L VISOR", "name": "HF DLX LETOST B.S.6", "price": 440.0}, {"cat": "H/L VISOR", "name": "SUP SPL (N/M) & T3", "price": 470.0}, {"cat": "H/L VISOR", "name": "SUPER SPL LETOST T/4", "price": 620.0}, {"cat": "H/L VISOR", "name": "SUP SPL T/5", "price": 760.0}, {"cat": "H/L VISOR", "name": "SUP SPL B.S.6", "price": 920.0}, {"cat": "H/L VISOR", "name": "GLEMOUR (O/M)", "price": 500.0}, {"cat": "H/L VISOR", "name": "SPL L.E.D 2022", "price": 360.0}, {"cat": "H/L VISOR", "name": "SCOOTY (O/M)", "price": 350.0}, {"cat": "H/L VISOR", "name": "SCOOTY (N/M)", "price": 360.0}, {"cat": "H/L VISOR", "name": "VICTOR (O/M)", "price": 480.0}, {"cat": "H/L VISOR", "name": "VICTOR GLX", "price": 520.0}, {"cat": "H/L VISOR", "name": "VICTOR GX", "price": 480.0}, {"cat": "H/L VISOR", "name": "VICTOR (N/M)", "price": 660.0}, {"cat": "H/L VISOR", "name": "FIERO", "price": 570.0}, {"cat": "H/L VISOR", "name": "FIERO/2", "price": 570.0}, {"cat": "H/L VISOR", "name": "CENTRA", "price": 360.0}, {"cat": "H/L VISOR", "name": "STAR CITY (O/M)(N/M)", "price": 480.0}, {"cat": "H/L VISOR", "name": "STAR SPORTS", "price": 500.0}, {"cat": "H/L VISOR", "name": "STAR SPORTS (N/M)", "price": 560.0}, {"cat": "H/L VISOR", "name": "STAR C.V.T.I.", "price": 520.0}, {"cat": "H/L VISOR", "name": "APACHI", "price": 600.0}, {"cat": "H/L VISOR", "name": "STAR CITY", "price": 560.0}, {"cat": "H/L VISOR", "name": "WEGO", "price": 620.0}, {"cat": "H/L VISOR", "name": "APACHI R.T.R.", "price": 680.0}, {"cat": "H/L VISOR", "name": "STAR CITY 110 CC", "price": 480.0}, {"cat": "H/L VISOR", "name": "REDON", "price": 620.0}, {"cat": "H/L VISOR", "name": "REDON SET (WITH CROM)", "price": 920.0}, {"cat": "H/L VISOR", "name": "SCOOTY PEP", "price": 420.0}, {"cat": "H/L VISOR", "name": "APACHI 4U (N/M) SETOFU", "price": 1180.0}, {"cat": "H/L VISOR", "name": "FREEDOM", "price": 360.0}, {"cat": "H/L VISOR", "name": "STAR SPORT BS6", "price": 560.0}, {"cat": "H/L VISOR", "name": "K.B.4.S.", "price": 320.0}, {"cat": "H/L VISOR", "name": "CALIBER 115, CROMA", "price": 460.0}, {"cat": "H/L VISOR", "name": "BOXER CT", "price": 320.0}, {"cat": "H/L VISOR", "name": "CT 100, DLX", "price": 440.0}, {"cat": "H/L VISOR", "name": "CT 100 (N/M)", "price": 450.0}, {"cat": "H/L VISOR", "name": "CT 100 LETOST", "price": 460.0}, {"cat": "H/L VISOR", "name": "CT 100 LED", "price": 500.0}, {"cat": "H/L VISOR", "name": "PLATINA", "price": 460.0}, {"cat": "H/L VISOR", "name": "PLATINA (N/M)", "price": 520.0}, {"cat": "H/L VISOR", "name": "PLATINA L.E.D.", "price": 520.0}, {"cat": "H/L VISOR", "name": "PLATINA B.S.6", "price": 620.0}, {"cat": "H/L VISOR", "name": "PLATINA 125 CC", "price": 500.0}, {"cat": "H/L VISOR", "name": "DISCOVER (O/M) 135 CC", "price": 460.0}, {"cat": "H/L VISOR", "name": "DIS-100 CC", "price": 500.0}, {"cat": "H/L VISOR", "name": "DIS-150 CC", "price": 500.0}, {"cat": "H/L VISOR", "name": "DIS-125 CC (N/M)", "price": 500.0}, {"cat": "H/L VISOR", "name": "DISCOVER S.T.", "price": 620.0}, {"cat": "H/L VISOR", "name": "DIS-100[M]", "price": 660.0}, {"cat": "H/L VISOR", "name": "X.C.D 125 CC", "price": 500.0}, {"cat": "H/L VISOR", "name": "X.C.D 135 CC", "price": 640.0}, {"cat": "H/L VISOR", "name": "VIKRANTA SET OF 3 WITH CROME", "price": 1180.0}, {"cat": "H/L VISOR", "name": "PULSAR DTSI", "price": 440.0}, {"cat": "H/L VISOR", "name": "PULSAR DIZITEL", "price": 470.0}, {"cat": "H/L VISOR", "name": "PULSAR DIZITEL (N/M)", "price": 500.0}, {"cat": "H/L VISOR", "name": "PULSAR DIZITEL LETOS", "price": 600.0}, {"cat": "H/L VISOR", "name": "PULSAR DIZITEL (2019/20)", "price": 600.0}, {"cat": "H/L VISOR", "name": "PULSAR 135 CC", "price": 560.0}, {"cat": "H/L VISOR", "name": "PULSAR 220 CC", "price": 2520.0}, {"cat": "H/L VISOR", "name": "CT-110X", "price": 540.0}, {"cat": "F/M", "name": "SPLANDOR", "price": 300.0}, {"cat": "F/M", "name": "SPLANDOR (A/W)", "price": 300.0}, {"cat": "F/M", "name": "SPLANDOR HERO", "price": 300.0}, {"cat": "F/M", "name": "SPL. PRO (S/P. LUCK AGE PICHHE)", "price": 350.0}, {"cat": "F/M", "name": "SPL PRO HERO [S/P.1.SIDE BOLT & LUCK]", "price": 350.0}, {"cat": "F/M", "name": "SPLENDOR 1.3.S [S/P TWO SIDE BOLT]", "price": 400.0}, {"cat": "F/M", "name": "SPL B.S.6 [S/P TWO SIDE BOLT]", "price": 400.0}, {"cat": "F/M", "name": "SPL PRO (N/M) 2016 GLS WALI", "price": 350.0}, {"cat": "F/M", "name": "I SMART", "price": 360.0}, {"cat": "F/M", "name": "I SMART (N/M)", "price": 400.0}, {"cat": "F/M", "name": "SPLENDOR NXG", "price": 350.0}, {"cat": "F/M", "name": "PASSION (O/M)", "price": 300.0}, {"cat": "F/M", "name": "PASSION (A/W)", "price": 300.0}, {"cat": "F/M", "name": "PASSION PRO", "price": 300.0}, {"cat": "F/M", "name": "PASSION PRO DIZITELS", "price": 300.0}, {"cat": "F/M", "name": "PASSION PRO (N/M) 2016", "price": 400.0}, {"cat": "F/M", "name": "PASSION 2020 PRO BS6", "price": 400.0}, {"cat": "F/M", "name": "PASSION X. PRO", "price": 380.0}, {"cat": "F/M", "name": "CD DOWN & CD DLX (O/M)", "price": 300.0}, {"cat": "F/M", "name": "CD DLX & HF DLX 2010 TO 2014", "price": 350.0}, {"cat": "F/M", "name": "HF DLX LETOST 2016", "price": 370.0}, {"cat": "F/M", "name": "HF DLX LETOST T/4", "price": 380.0}, {"cat": "F/M", "name": "HF DLX LETOST 1.3.S", "price": 380.0}, {"cat": "F/M", "name": "HF DLX LETOST B.S.6", "price": 360.0}, {"cat": "F/M", "name": "SUP SPL (N/M) & T3", "price": 360.0}, {"cat": "F/M", "name": "SUPER SPL LETOST T/4", "price": 380.0}, {"cat": "F/M", "name": "SUP SPL B.S.6", "price": 380.0}, {"cat": "F/M", "name": "GLEMOUR (O/M)", "price": 360.0}, {"cat": "F/M", "name": "SPL L.E.D 2022", "price": 400.0}, {"cat": "F/M", "name": "K.B.4.S.", "price": 300.0}, {"cat": "F/M", "name": "CALIBER 115, CROMA", "price": 300.0}, {"cat": "F/M", "name": "BOXER CT", "price": 300.0}, {"cat": "F/M", "name": "BOXER AT, AT", "price": 300.0}, {"cat": "F/M", "name": "CT 100, DLX", "price": 300.0}, {"cat": "F/M", "name": "CT 100 (N/M)", "price": 300.0}, {"cat": "F/M", "name": "CT 100 LETOST", "price": 300.0}, {"cat": "F/M", "name": "CT 100 LED", "price": 300.0}, {"cat": "F/M", "name": "PLATINA", "price": 300.0}, {"cat": "F/M", "name": "PLATINA (N/M)", "price": 360.0}, {"cat": "F/M", "name": "PLATINA L.E.D.", "price": 360.0}, {"cat": "F/M", "name": "PLATINA B.S.6", "price": 360.0}, {"cat": "F/M", "name": "PLATINA 125 CC", "price": 300.0}, {"cat": "F/M", "name": "DISCOVER (O/M) 135 CC", "price": 310.0}, {"cat": "F/M", "name": "DIS-100 CC", "price": 350.0}, {"cat": "F/M", "name": "DIS-150 CC", "price": 350.0}, {"cat": "F/M", "name": "DIS-125 CC (N/M)", "price": 350.0}, {"cat": "F/M", "name": "DISCOVER S.T.", "price": 360.0}, {"cat": "F/M", "name": "DIS-100[M]", "price": 360.0}, {"cat": "F/M", "name": "X.C.D 125 CC", "price": 420.0}, {"cat": "F/M", "name": "X.C.D 135 CC", "price": 420.0}, {"cat": "F/M", "name": "VIKRANTA SET OF 3 WITH CROME", "price": 400.0}, {"cat": "F/M", "name": "PULSAR DTSI", "price": 320.0}, {"cat": "F/M", "name": "PULSAR DIZITEL", "price": 360.0}, {"cat": "F/M", "name": "PULSAR DIZITEL (N/M)", "price": 360.0}, {"cat": "F/M", "name": "PULSAR DIZITEL LETOS", "price": 380.0}, {"cat": "F/M", "name": "PULSAR DIZITEL (2019/20)", "price": 380.0}, {"cat": "F/M", "name": "PULSAR 135 CC", "price": 380.0}, {"cat": "F/M", "name": "PULSAR 220 CC", "price": 380.0}, {"cat": "F/M", "name": "PULSAR N.S.", "price": 520.0}, {"cat": "F/M", "name": "AVIZER", "price": 500.0}, {"cat": "F/M", "name": "CT-110X", "price": 480.0}, {"cat": "F/M", "name": "VICTOR (O/M)", "price": 310.0}, {"cat": "F/M", "name": "VICTOR GLX", "price": 380.0}, {"cat": "F/M", "name": "VICTOR GX", "price": 310.0}, {"cat": "F/M", "name": "FIERO", "price": 420.0}, {"cat": "F/M", "name": "FIERO/2", "price": 420.0}, {"cat": "F/M", "name": "CENTRA", "price": 320.0}, {"cat": "F/M", "name": "STAR CITY (O/M)(N/M)", "price": 320.0}, {"cat": "F/M", "name": "STAR SPORTS", "price": 360.0}, {"cat": "F/M", "name": "STAR SPORTS (N/M)", "price": 360.0}, {"cat": "F/M", "name": "STAR C.V.T.I.", "price": 320.0}, {"cat": "F/M", "name": "APACHI", "price": 360.0}, {"cat": "F/M", "name": "STAR CITY", "price": 360.0}, {"cat": "F/M", "name": "APACHI R.T.R.", "price": 380.0}, {"cat": "F/M", "name": "STAR CITY 110 CC", "price": 340.0}, {"cat": "F/M", "name": "REDON", "price": 500.0}, {"cat": "F/M", "name": "REDON SET (WITH CROM)", "price": 500.0}, {"cat": "F/M", "name": "HONET", "price": 360.0}, {"cat": "F/M", "name": "PHONIX", "price": 400.0}, {"cat": "F/M", "name": "APACHI 4U (N/M) SETOFU", "price": 820.0}, {"cat": "F/M", "name": "FREEDOM", "price": 360.0}, {"cat": "F/M", "name": "STAR SPORT BS6", "price": 340.0}, {"cat": "S.P.", "name": "K.B.4.S.", "price": 520.0}, {"cat": "S.P.", "name": "CALIBER 115, CROMA", "price": 500.0}, {"cat": "S.P.", "name": "BOXER CT", "price": 460.0}, {"cat": "S.P.", "name": "BOXER AT, AT", "price": 520.0}, {"cat": "S.P.", "name": "CT 100, DLX", "price": 480.0}, {"cat": "S.P.", "name": "CT 100 (N/M)", "price": 480.0}, {"cat": "S.P.", "name": "CT 100 LETOST", "price": 480.0}, {"cat": "S.P.", "name": "CT 100 LED", "price": 480.0}, {"cat": "S.P.", "name": "PLATINA", "price": 500.0}, {"cat": "S.P.", "name": "PLATINA (N/M)", "price": 720.0}, {"cat": "S.P.", "name": "PLATINA L.E.D.", "price": 720.0}, {"cat": "S.P.", "name": "PLATINA B.S.6", "price": 720.0}, {"cat": "S.P.", "name": "PLATINA 125 CC", "price": 760.0}, {"cat": "S.P.", "name": "DISCOVER (O/M) 135 CC", "price": 520.0}, {"cat": "S.P.", "name": "DIS-100 CC", "price": 560.0}, {"cat": "S.P.", "name": "DIS-150 CC", "price": 570.0}, {"cat": "S.P.", "name": "DIS-125 CC (N/M)", "price": 560.0}, {"cat": "S.P.", "name": "DISCOVER S.T.", "price": 840.0}, {"cat": "S.P.", "name": "DIS-100[M]", "price": 860.0}, {"cat": "S.P.", "name": "X.C.D 125 CC", "price": 900.0}, {"cat": "S.P.", "name": "X.C.D 135 CC", "price": 1000.0}, {"cat": "S.P.", "name": "VIKRANTA SET OF 3 WITH CROME", "price": 870.0}, {"cat": "S.P.", "name": "PULSAR DTSI", "price": 480.0}, {"cat": "S.P.", "name": "PULSAR DIZITEL", "price": 520.0}, {"cat": "S.P.", "name": "PULSAR DIZITEL (N/M)", "price": 570.0}, {"cat": "S.P.", "name": "PULSAR DIZITEL LETOS", "price": 570.0}, {"cat": "S.P.", "name": "PULSAR DIZITEL (2019/20)", "price": 570.0}, {"cat": "S.P.", "name": "PULSAR 135 CC", "price": 820.0}, {"cat": "S.P.", "name": "PULSAR 220 CC", "price": 560.0}, {"cat": "S.P.", "name": "AVIZER", "price": 960.0}, {"cat": "S.P.", "name": "CT-110X", "price": 800.0}, {"cat": "S.P.", "name": "SPLANDOR", "price": 340.0}, {"cat": "S.P.", "name": "SPLANDOR (A/W)", "price": 370.0}, {"cat": "S.P.", "name": "SPLANDOR HERO", "price": 370.0}, {"cat": "S.P.", "name": "SPL. PRO (S/P. LUCK AGE PICHHE)", "price": 400.0}, {"cat": "S.P.", "name": "SPL PRO HERO [S/P.1SIDE BOLT & LUCK]", "price": 400.0}, {"cat": "S.P.", "name": "SPLENDOR 1.3.S [S/P TWO SIDE BOLT]", "price": 400.0}, {"cat": "S.P.", "name": "SPL B.S.6 [S/P TWO SIDE BOLT]", "price": 410.0}, {"cat": "S.P.", "name": "SPL PRO (N/M) 2016 GLS WALI", "price": 620.0}, {"cat": "S.P.", "name": "I SMART", "price": 620.0}, {"cat": "S.P.", "name": "I SMART (N/M)", "price": 920.0}, {"cat": "S.P.", "name": "SPLENDOR NXG", "price": 640.0}, {"cat": "S.P.", "name": "PASSION (O/M)", "price": 450.0}, {"cat": "S.P.", "name": "PASSION (A/W)", "price": 460.0}, {"cat": "S.P.", "name": "PASSION PRO", "price": 470.0}, {"cat": "S.P.", "name": "PASSION PRO DIZITELS", "price": 470.0}, {"cat": "S.P.", "name": "PASSION PRO (N/M) 2016", "price": 1020.0}, {"cat": "S.P.", "name": "PASSION 2020 PRO BS6", "price": 1020.0}, {"cat": "S.P.", "name": "PASSION X. PRO", "price": 820.0}, {"cat": "S.P.", "name": "CD DOWN & CD DLX (O/M)", "price": 440.0}, {"cat": "S.P.", "name": "CD DLX & HF DLX 2010 TO 2014", "price": 450.0}, {"cat": "S.P.", "name": "HF DLX LETOST 2016", "price": 460.0}, {"cat": "S.P.", "name": "HF DLX LETOST T/4", "price": 460.0}, {"cat": "S.P.", "name": "HF DLX LETOST I.3.S", "price": 460.0}, {"cat": "S.P.", "name": "HF DLX LETOST B.S.6", "price": 570.0}, {"cat": "S.P.", "name": "SUP SPL (N/M) & T3", "price": 570.0}, {"cat": "S.P.", "name": "SUPER SPL LETOST T/4", "price": 970.0}, {"cat": "S.P.", "name": "SUP SPL B.S.6", "price": 1020.0}, {"cat": "S.P.", "name": "GLEMOUR (O/M)", "price": 770.0}, {"cat": "S.P.", "name": "SPL L.E.D 2022", "price": 420.0}, {"cat": "T.P.", "name": "SPLANDOR", "price": 340.0}, {"cat": "T.P.", "name": "SPLANDOR (A/W)", "price": 370.0}, {"cat": "T.P.", "name": "SPLANDOR HERO", "price": 370.0}, {"cat": "T.P.", "name": "SPL. PRO (S/P. LUCK AGE PICHHE)", "price": 380.0}, {"cat": "T.P.", "name": "SPL PRO HERO [S/P.1SIDE BOLT & LUCK]", "price": 400.0}, {"cat": "T.P.", "name": "SPLENDOR 1.3.S [S/P TWO SIDE BOLT]", "price": 400.0}, {"cat": "T.P.", "name": "SPL B.S.6 [S/P TWO SIDE BOLT]", "price": 410.0}, {"cat": "T.P.", "name": "SPL PRO (N/M) 2016 GLS WALI", "price": 720.0}, {"cat": "T.P.", "name": "I SMART", "price": 1120.0}, {"cat": "T.P.", "name": "SPLENDOR NXG", "price": 1120.0}, {"cat": "T.P.", "name": "PASSION (O/M)", "price": 540.0}, {"cat": "T.P.", "name": "PASSION (A/W)", "price": 550.0}, {"cat": "T.P.", "name": "PASSION PRO", "price": 580.0}, {"cat": "T.P.", "name": "PASSION PRO DIZITELS", "price": 580.0}, {"cat": "T.P.", "name": "PASSION PRO (N/M) 2016", "price": 920.0}, {"cat": "T.P.", "name": "PASSION 2020 PRO BS6", "price": 1020.0}, {"cat": "T.P.", "name": "PASSION X. PRO", "price": 920.0}, {"cat": "T.P.", "name": "CD DOWN & CD DLX (O/M)", "price": 280.0}, {"cat": "T.P.", "name": "CD DLX & HF DLX 2010 TO 2014", "price": 360.0}, {"cat": "T.P.", "name": "HF DLX LETOST 2016", "price": 430.0}, {"cat": "T.P.", "name": "HF DLX LETOST T/4", "price": 430.0}, {"cat": "T.P.", "name": "HF DLX LETOST 1.3.S", "price": 430.0}, {"cat": "T.P.", "name": "HF DLX LETOST B.S.6", "price": 580.0}, {"cat": "T.P.", "name": "SUP SPL (N/M) & T3", "price": 580.0}, {"cat": "T.P.", "name": "SUPER SPL LETOST T/4", "price": 970.0}, {"cat": "T.P.", "name": "SUP SPL B.S.6", "price": 1000.0}, {"cat": "T.P.", "name": "GLEMOUR (O/M)", "price": 780.0}, {"cat": "T.P.", "name": "SPL L.E.D 2022", "price": 400.0}, {"cat": "T.P.", "name": "CT 100, DLX", "price": 540.0}, {"cat": "T.P.", "name": "CT 100 (N/M)", "price": 540.0}, {"cat": "T.P.", "name": "CT 100 LETOST", "price": 540.0}, {"cat": "T.P.", "name": "CT 100 LED", "price": 540.0}, {"cat": "T.P.", "name": "PLATINA", "price": 580.0}, {"cat": "T.P.", "name": "PLATINA (N/M)", "price": 660.0}, {"cat": "T.P.", "name": "PLATINA L.E.D.", "price": 620.0}, {"cat": "T.P.", "name": "PLATINA B.S.6", "price": 620.0}, {"cat": "T.P.", "name": "PLATINA 125 CC", "price": 620.0}, {"cat": "T.P.", "name": "DISCOVER (O/M) 135 CC", "price": 540.0}, {"cat": "T.P.", "name": "DIS-100 CC", "price": 560.0}, {"cat": "T.P.", "name": "DIS-150 CC", "price": 570.0}, {"cat": "T.P.", "name": "DIS-125 CC (N/M)", "price": 570.0}, {"cat": "T.P.", "name": "DISCOVER S.T.", "price": 740.0}, {"cat": "T.P.", "name": "DIS-100[M]", "price": 820.0}, {"cat": "T.P.", "name": "X.C.D 125 CC", "price": 1400.0}, {"cat": "T.P.", "name": "PULSAR DTSI", "price": 520.0}, {"cat": "T.P.", "name": "PULSAR DIZITEL", "price": 720.0}, {"cat": "T.P.", "name": "PULSAR DIZITEL (N/M)", "price": 780.0}, {"cat": "T.P.", "name": "PULSAR DIZITEL LETOS", "price": 780.0}, {"cat": "T.P.", "name": "PULSAR DIZITEL (2019/20)", "price": 780.0}, {"cat": "T.P.", "name": "PULSAR 135 CC", "price": 1420.0}, {"cat": "T.P.", "name": "PULSAR 220 CC", "price": 780.0}];
+// ═══ PRODUCT MASTER LIST — 666 items, 9 types ═══
+const PRODUCTS = [{"t": "H/L VISOR", "n": "SPLANDOR", "p": 216.0}, {"t": "H/L VISOR", "n": "SPLANDOR +", "p": 216.0}, {"t": "H/L VISOR", "n": "SPLANDOR (A/W)", "p": 240.0}, {"t": "H/L VISOR", "n": "SPLANDOR HERO", "p": 250.0}, {"t": "H/L VISOR", "n": "SPL. PRO (S/P. LUCK AGE PICHHE)", "p": 260.0}, {"t": "H/L VISOR", "n": "SPL PRO HERO [S/P.1.SIDE BOLT & LUCK]", "p": 260.0}, {"t": "H/L VISOR", "n": "SPLENDOR i.3.S [S/P TWO SIDE BOLT]", "p": 260.0}, {"t": "H/L VISOR", "n": "SPL B.S.6 [S/P TWO SIDE BOLT]", "p": 270.0}, {"t": "H/L VISOR", "n": "SPL PRO (N/M) 2016 GLS WALI", "p": 540.0}, {"t": "H/L VISOR", "n": "i SMART", "p": 620.0}, {"t": "H/L VISOR", "n": "I SMART (N/M)", "p": 720.0}, {"t": "H/L VISOR", "n": "SPLENDOR NXG", "p": 500.0}, {"t": "H/L VISOR", "n": "PASSION (O/M)+", "p": 340.0}, {"t": "H/L VISOR", "n": "PASSION (A/W)", "p": 340.0}, {"t": "H/L VISOR", "n": "PASSION PRO", "p": 540.0}, {"t": "H/L VISOR", "n": "PASSION PRO DIZITELS", "p": 540.0}, {"t": "H/L VISOR", "n": "PASSION PRO (N/M) 2016", "p": 540.0}, {"t": "H/L VISOR", "n": "PASSION 2020 PRO Bs6", "p": 740.0}, {"t": "H/L VISOR", "n": "PASSION X. PRO", "p": 640.0}, {"t": "H/L VISOR", "n": "PASSION X. PRO (N/M)", "p": 760.0}, {"t": "H/L VISOR", "n": "CD DOWN & CD DLX (O/M)", "p": 320.0}, {"t": "H/L VISOR", "n": "CD DLX & HF DLX TO 2010 TO 2014", "p": 340.0}, {"t": "H/L VISOR", "n": "HF DLX LETOST 2016", "p": 340.0}, {"t": "H/L VISOR", "n": "HF DLX LETOST T/4", "p": 350.0}, {"t": "H/L VISOR", "n": "HF DLX LETOST i.3.S", "p": 360.0}, {"t": "H/L VISOR", "n": "HF DLX LETOST B.S.6", "p": 440.0}, {"t": "H/L VISOR", "n": "SUP SPL (N/M) & T3", "p": 470.0}, {"t": "H/L VISOR", "n": "SUPER SPL LETOST T/4", "p": 620.0}, {"t": "H/L VISOR", "n": "SUP SPL T/5", "p": 760.0}, {"t": "H/L VISOR", "n": "SUP SPL B.S.6", "p": 920.0}, {"t": "H/L VISOR", "n": "GLEMOUR (O/M)", "p": 500.0}, {"t": "H/L VISOR", "n": "SPL L.E.D 2022", "p": 360.0}, {"t": "H/L VISOR", "n": "GLEMOUR (N/M)", "p": 520.0}, {"t": "H/L VISOR", "n": "GLEMOUR LETOST", "p": 700.0}, {"t": "H/L VISOR", "n": "GLEMOUR i.3.S", "p": 740.0}, {"t": "H/L VISOR", "n": "GLEMOUR B.S/6", "p": 740.0}, {"t": "H/L VISOR", "n": "CBZ", "p": 520.0}, {"t": "H/L VISOR", "n": "CBZ STAR", "p": 540.0}, {"t": "H/L VISOR", "n": "CBZ XTREAM", "p": 870.0}, {"t": "H/L VISOR", "n": "CBZ XTREM (N/M) WTH CROM", "p": 1000.0}, {"t": "H/L VISOR", "n": "XTREM T/3", "p": 920.0}, {"t": "H/L VISOR", "n": "XTREM T/4", "p": 1000.0}, {"t": "H/L VISOR", "n": "HUNK", "p": 600.0}, {"t": "H/L VISOR", "n": "HUNK DIZITELS", "p": 660.0}, {"t": "H/L VISOR", "n": "PLESURE", "p": 360.0}, {"t": "H/L VISOR", "n": "PLESURE (N/M)", "p": 520.0}, {"t": "H/L VISOR", "n": "DUET", "p": 500.0}, {"t": "H/L VISOR", "n": "MAESTRO", "p": 540.0}, {"t": "H/L VISOR", "n": "MAESTRO (N/M)", "p": 620.0}, {"t": "H/L VISOR", "n": "KARIZAMA", "p": 2420.0}, {"t": "H/L VISOR", "n": "KARIZMA Z.M.R", "p": 2620.0}, {"t": "H/L VISOR", "n": "IGENTOR", "p": 1220.0}, {"t": "H/L VISOR", "n": "DESTONY", "p": 750.0}, {"t": "H/L VISOR", "n": "PASSION PRO 2018,2019", "p": 520.0}, {"t": "H/L VISOR", "n": "CD DLX 2023,2024", "p": 440.0}, {"t": "H/L VISOR", "n": "ACHIVER", "p": 1020.0}, {"t": "H/L VISOR", "n": "SPL-01", "p": 280.0}, {"t": "H/L VISOR", "n": "PASSION PRO 2023,2024", "p": 620.0}, {"t": "H/L VISOR", "n": "SPL Bs6 XTEC-02", "p": 440.0}, {"t": "F/M", "n": "SPLANDOR", "p": 300.0}, {"t": "F/M", "n": "SPLANDOR +", "p": 300.0}, {"t": "F/M", "n": "SPLANDOR (A/W)", "p": 300.0}, {"t": "F/M", "n": "SPLANDOR HERO", "p": 300.0}, {"t": "F/M", "n": "SPL. PRO (S/P. LUCK AGE PICHHE)", "p": 350.0}, {"t": "F/M", "n": "SPL PRO HERO [S/P.1.SIDE BOLT & LUCK]", "p": 350.0}, {"t": "F/M", "n": "SPLENDOR i.3.S [S/P TWO SIDE BOLT]", "p": 400.0}, {"t": "F/M", "n": "SPL B.S.6 [S/P TWO SIDE BOLT]", "p": 400.0}, {"t": "F/M", "n": "SPL PRO (N/M) 2016 GLS WALI", "p": 350.0}, {"t": "F/M", "n": "i SMART", "p": 360.0}, {"t": "F/M", "n": "I SMART (N/M)", "p": 400.0}, {"t": "F/M", "n": "SPLENDOR NXG", "p": 350.0}, {"t": "F/M", "n": "PASSION (O/M)+", "p": 300.0}, {"t": "F/M", "n": "PASSION (A/W)", "p": 300.0}, {"t": "F/M", "n": "PASSION PRO", "p": 300.0}, {"t": "F/M", "n": "PASSION PRO DIZITELS", "p": 300.0}, {"t": "F/M", "n": "PASSION PRO (N/M) 2016", "p": 400.0}, {"t": "F/M", "n": "PASSION 2020 PRO Bs6", "p": 400.0}, {"t": "F/M", "n": "PASSION X. PRO", "p": 380.0}, {"t": "F/M", "n": "CD DOWN & CD DLX (O/M)", "p": 300.0}, {"t": "F/M", "n": "CD DLX & HF DLX TO 2010 TO 2014", "p": 350.0}, {"t": "F/M", "n": "HF DLX LETOST 2016", "p": 370.0}, {"t": "F/M", "n": "HF DLX LETOST T/4", "p": 380.0}, {"t": "F/M", "n": "HF DLX LETOST i.3.S", "p": 380.0}, {"t": "F/M", "n": "HF DLX LETOST B.S.6", "p": 360.0}, {"t": "F/M", "n": "SUP SPL (N/M) & T3", "p": 360.0}, {"t": "F/M", "n": "SUPER SPL LETOST T/4", "p": 380.0}, {"t": "F/M", "n": "SUP SPL B.S.6", "p": 380.0}, {"t": "F/M", "n": "GLEMOUR (O/M)", "p": 360.0}, {"t": "F/M", "n": "SPL L.E.D 2022", "p": 400.0}, {"t": "F/M", "n": "GLEMOUR (N/M)", "p": 360.0}, {"t": "F/M", "n": "GLEMOUR LETOST", "p": 400.0}, {"t": "F/M", "n": "GLEMOUR i.3.S", "p": 400.0}, {"t": "F/M", "n": "CBZ", "p": 320.0}, {"t": "F/M", "n": "CBZ STAR", "p": 320.0}, {"t": "F/M", "n": "CBZ XTREAM", "p": 400.0}, {"t": "F/M", "n": "CBZ XTREM (N/M) WTH CROM", "p": 400.0}, {"t": "F/M", "n": "XTREM T/3", "p": 420.0}, {"t": "F/M", "n": "XTREM T/4", "p": 420.0}, {"t": "F/M", "n": "HUNK", "p": 420.0}, {"t": "F/M", "n": "HUNK DIZITELS", "p": 420.0}, {"t": "F/M", "n": "PLESURE", "p": 520.0}, {"t": "F/M", "n": "PLESURE (N/M)", "p": 520.0}, {"t": "F/M", "n": "MAESTRO", "p": 620.0}, {"t": "F/M", "n": "MAESTRO (N/M)", "p": 640.0}, {"t": "F/M", "n": "TINGER", "p": 680.0}, {"t": "F/M", "n": "KARIZAMA", "p": 420.0}, {"t": "F/M", "n": "KARIZMA Z.M.R", "p": 520.0}, {"t": "F/M", "n": "IGENTOR", "p": 400.0}, {"t": "F/M", "n": "PASSION PRO 2018,2019", "p": 380.0}, {"t": "F/M", "n": "CD DLX 2023,2024", "p": 360.0}, {"t": "F/M", "n": "PLESURE PLUS", "p": 840.0}, {"t": "F/M", "n": "ACHIVER", "p": 300.0}, {"t": "F/M", "n": "SPL-01", "p": 380.0}, {"t": "F/M", "n": "SPL Bs6 XTEC-02", "p": 380.0}, {"t": "S.P.", "n": "SPLANDOR", "p": 340.0}, {"t": "S.P.", "n": "SPLANDOR +", "p": 360.0}, {"t": "S.P.", "n": "SPLANDOR (A/W)", "p": 370.0}, {"t": "S.P.", "n": "SPLANDOR HERO", "p": 370.0}, {"t": "S.P.", "n": "SPL. PRO (S/P. LUCK AGE PICHHE)", "p": 400.0}, {"t": "S.P.", "n": "SPL PRO HERO [S/P.1.SIDE BOLT & LUCK]", "p": 400.0}, {"t": "S.P.", "n": "SPLENDOR i.3.S [S/P TWO SIDE BOLT]", "p": 400.0}, {"t": "S.P.", "n": "SPL B.S.6 [S/P TWO SIDE BOLT]", "p": 410.0}, {"t": "S.P.", "n": "SPL PRO (N/M) 2016 GLS WALI", "p": 620.0}, {"t": "S.P.", "n": "i SMART", "p": 620.0}, {"t": "S.P.", "n": "I SMART (N/M)", "p": 920.0}, {"t": "S.P.", "n": "SPLENDOR NXG", "p": 640.0}, {"t": "S.P.", "n": "PASSION (O/M)+", "p": 450.0}, {"t": "S.P.", "n": "PASSION (A/W)", "p": 460.0}, {"t": "S.P.", "n": "PASSION PRO", "p": 470.0}, {"t": "S.P.", "n": "PASSION PRO DIZITELS", "p": 470.0}, {"t": "S.P.", "n": "PASSION PRO (N/M) 2016", "p": 1020.0}, {"t": "S.P.", "n": "PASSION 2020 PRO Bs6", "p": 1020.0}, {"t": "S.P.", "n": "PASSION X. PRO", "p": 820.0}, {"t": "S.P.", "n": "CD DOWN & CD DLX (O/M)", "p": 440.0}, {"t": "S.P.", "n": "CD DLX & HF DLX TO 2010 TO 2014", "p": 450.0}, {"t": "S.P.", "n": "HF DLX LETOST 2016", "p": 460.0}, {"t": "S.P.", "n": "HF DLX LETOST T/4", "p": 460.0}, {"t": "S.P.", "n": "HF DLX LETOST i.3.S", "p": 460.0}, {"t": "S.P.", "n": "HF DLX LETOST B.S.6", "p": 570.0}, {"t": "S.P.", "n": "SUP SPL (N/M) & T3", "p": 570.0}, {"t": "S.P.", "n": "SUPER SPL LETOST T/4", "p": 970.0}, {"t": "S.P.", "n": "SUP SPL B.S.6", "p": 1020.0}, {"t": "S.P.", "n": "GLEMOUR (O/M)", "p": 770.0}, {"t": "S.P.", "n": "SPL L.E.D 2022", "p": 420.0}, {"t": "S.P.", "n": "GLEMOUR (N/M)", "p": 770.0}, {"t": "S.P.", "n": "GLEMOUR LETOST", "p": 800.0}, {"t": "S.P.", "n": "GLEMOUR i.3.S", "p": 1000.0}, {"t": "S.P.", "n": "CBZ", "p": 480.0}, {"t": "S.P.", "n": "CBZ STAR", "p": 480.0}, {"t": "S.P.", "n": "CBZ XTREAM", "p": 920.0}, {"t": "S.P.", "n": "CBZ XTREM (N/M) WTH CROM", "p": 920.0}, {"t": "S.P.", "n": "HUNK", "p": 1120.0}, {"t": "S.P.", "n": "PLESURE", "p": 1420.0}, {"t": "S.P.", "n": "PLESURE (N/M)", "p": 1520.0}, {"t": "S.P.", "n": "MAESTRO", "p": 1820.0}, {"t": "S.P.", "n": "MAESTRO (N/M)", "p": 2000.0}, {"t": "S.P.", "n": "KARIZAMA", "p": 1040.0}, {"t": "S.P.", "n": "IGENTOR", "p": 1200.0}, {"t": "S.P.", "n": "PASSION PRO 2018,2019", "p": 680.0}, {"t": "S.P.", "n": "CD DLX 2023,2024", "p": 460.0}, {"t": "S.P.", "n": "SPL-01", "p": 410.0}, {"t": "S.P.", "n": "SPL Bs6 XTEC-02", "p": 420.0}, {"t": "S.P.", "n": "GLEMOUR B.S.6", "p": 1040.0}, {"t": "T.P.", "n": "SPLANDOR", "p": 340.0}, {"t": "T.P.", "n": "SPLANDOR +", "p": 350.0}, {"t": "T.P.", "n": "SPLANDOR (A/W)", "p": 370.0}, {"t": "T.P.", "n": "SPLANDOR HERO", "p": 370.0}, {"t": "T.P.", "n": "SPL. PRO (S/P. LUCK AGE PICHHE)", "p": 380.0}, {"t": "T.P.", "n": "SPL PRO HERO [S/P.1.SIDE BOLT & LUCK]", "p": 400.0}, {"t": "T.P.", "n": "SPLENDOR i.3.S [S/P TWO SIDE BOLT]", "p": 400.0}, {"t": "T.P.", "n": "SPL B.S.6 [S/P TWO SIDE BOLT]", "p": 410.0}, {"t": "T.P.", "n": "SPL PRO (N/M) 2016 GLS WALI", "p": 720.0}, {"t": "T.P.", "n": "i SMART", "p": 1120.0}, {"t": "T.P.", "n": "SPLENDOR NXG", "p": 1120.0}, {"t": "T.P.", "n": "PASSION (O/M)+", "p": 540.0}, {"t": "T.P.", "n": "PASSION (A/W)", "p": 550.0}, {"t": "T.P.", "n": "PASSION PRO", "p": 580.0}, {"t": "T.P.", "n": "PASSION PRO DIZITELS", "p": 580.0}, {"t": "T.P.", "n": "PASSION PRO (N/M) 2016", "p": 920.0}, {"t": "T.P.", "n": "PASSION 2020 PRO Bs6", "p": 1020.0}, {"t": "T.P.", "n": "PASSION X. PRO", "p": 920.0}, {"t": "T.P.", "n": "CD DOWN & CD DLX (O/M)", "p": 280.0}, {"t": "T.P.", "n": "CD DLX & HF DLX TO 2010 TO 2014", "p": 360.0}, {"t": "T.P.", "n": "HF DLX LETOST 2016", "p": 430.0}, {"t": "T.P.", "n": "HF DLX LETOST T/4", "p": 430.0}, {"t": "T.P.", "n": "HF DLX LETOST i.3.S", "p": 430.0}, {"t": "T.P.", "n": "HF DLX LETOST B.S.6", "p": 580.0}, {"t": "T.P.", "n": "SUP SPL (N/M) & T3", "p": 580.0}, {"t": "T.P.", "n": "SUPER SPL LETOST T/4", "p": 970.0}, {"t": "T.P.", "n": "SUP SPL B.S.6", "p": 1000.0}, {"t": "T.P.", "n": "GLEMOUR (O/M)", "p": 780.0}, {"t": "T.P.", "n": "SPL L.E.D 2022", "p": 400.0}, {"t": "T.P.", "n": "GLEMOUR (N/M)", "p": 780.0}, {"t": "T.P.", "n": "GLEMOUR LETOST", "p": 840.0}, {"t": "T.P.", "n": "GLEMOUR i.3.S", "p": 1020.0}, {"t": "T.P.", "n": "CBZ", "p": 720.0}, {"t": "T.P.", "n": "CBZ STAR", "p": 740.0}, {"t": "T.P.", "n": "CBZ XTREAM", "p": 1120.0}, {"t": "T.P.", "n": "CBZ XTREM (N/M) WTH CROM", "p": 1120.0}, {"t": "T.P.", "n": "HUNK", "p": 720.0}, {"t": "T.P.", "n": "KARIZAMA", "p": 1040.0}, {"t": "T.P.", "n": "IGENTOR", "p": 1020.0}, {"t": "T.P.", "n": "PASSION PRO 2018,2019", "p": 1080.0}, {"t": "T.P.", "n": "CD DLX 2023,2024", "p": 420.0}, {"t": "T.P.", "n": "SPL-01", "p": 400.0}, {"t": "T.P.", "n": "SPL Bs6 XTEC-02", "p": 420.0}, {"t": "H/L VISOR", "n": "SHINE T/2 T/3 T/4", "p": 450.0}, {"t": "H/L VISOR", "n": "CB SHINE (N/M)", "p": 470.0}, {"t": "H/L VISOR", "n": "SHINE LETOST T/6 WIT GLSS", "p": 820.0}, {"t": "H/L VISOR", "n": "SHINE T/7 WIT CROM", "p": 920.0}, {"t": "H/L VISOR", "n": "SHINE B.S.6 WIT CROM", "p": 1100.0}, {"t": "H/L VISOR", "n": "SHINE S.P", "p": 820.0}, {"t": "H/L VISOR", "n": "UNICORN", "p": 540.0}, {"t": "H/L VISOR", "n": "UNICORN (N/M) WT CROM", "p": 970.0}, {"t": "H/L VISOR", "n": "TWISTER", "p": 660.0}, {"t": "H/L VISOR", "n": "DREAM NEW", "p": 520.0}, {"t": "H/L VISOR", "n": "DREAM NEW T/2", "p": 540.0}, {"t": "H/L VISOR", "n": "DREAM YOGA", "p": 540.0}, {"t": "H/L VISOR", "n": "D.YOGA T/2,T/3", "p": 540.0}, {"t": "H/L VISOR", "n": "STUNNER", "p": 840.0}, {"t": "H/L VISOR", "n": "DIO (O/M)", "p": 520.0}, {"t": "H/L VISOR", "n": "DIO (N/M)", "p": 540.0}, {"t": "H/L VISOR", "n": "AVIATOR", "p": 400.0}, {"t": "H/L VISOR", "n": "ETERNO", "p": 400.0}, {"t": "H/L VISOR", "n": "ACTIVA (O/M)", "p": 320.0}, {"t": "H/L VISOR", "n": "ACTIVA (N/M)", "p": 350.0}, {"t": "H/L VISOR", "n": "ACTIVA 3G", "p": 450.0}, {"t": "H/L VISOR", "n": "ACTIVA 4G", "p": 450.0}, {"t": "H/L VISOR", "n": "ACTIVA 5G", "p": 470.0}, {"t": "H/L VISOR", "n": "ACTIVA 6G", "p": 470.0}, {"t": "H/L VISOR", "n": "ACTIVA 125 CC WITH GLSS", "p": 560.0}, {"t": "H/L VISOR", "n": "ACTIVA (I)", "p": 440.0}, {"t": "H/L VISOR", "n": "LIVO SET OF FOR", "p": 760.0}, {"t": "H/L VISOR", "n": "Cd110", "p": 520.0}, {"t": "H/L VISOR", "n": "SHINE [S.P] B.S.6", "p": 1160.0}, {"t": "H/L VISOR", "n": "LIVO Bs6", "p": 850.0}, {"t": "H/L VISOR", "n": "DIO Bs6", "p": 640.0}, {"t": "H/L VISOR", "n": "CD110 Bs6", "p": 500.0}, {"t": "H/L VISOR", "n": "ACTIVA 125 BS6", "p": 700.0}, {"t": "H/L VISOR", "n": "DEO LED", "p": 640.0}, {"t": "F/M", "n": "SHINE T/2 T/3 T/4", "p": 360.0}, {"t": "F/M", "n": "CB SHINE (N/M)", "p": 360.0}, {"t": "F/M", "n": "SHINE LETOST T/6 WIT GLSS", "p": 360.0}, {"t": "F/M", "n": "SHINE T/7 WIT CROM", "p": 420.0}, {"t": "F/M", "n": "SHINE B.S.6 WIT CROM", "p": 420.0}, {"t": "F/M", "n": "SHINE S.P", "p": 380.0}, {"t": "F/M", "n": "UNICORN", "p": 360.0}, {"t": "F/M", "n": "UNICORN (N/M) WT CROM", "p": 360.0}, {"t": "F/M", "n": "TWISTER", "p": 380.0}, {"t": "F/M", "n": "DREAM NEW", "p": 360.0}, {"t": "F/M", "n": "DREAM NEW T/2", "p": 360.0}, {"t": "F/M", "n": "DREAM YOGA", "p": 360.0}, {"t": "F/M", "n": "D.YOGA T/2,T/3", "p": 360.0}, {"t": "F/M", "n": "STUNNER", "p": 400.0}, {"t": "F/M", "n": "DIO (O/M)", "p": 320.0}, {"t": "F/M", "n": "DIO (N/M)", "p": 660.0}, {"t": "F/M", "n": "AVIATOR", "p": 640.0}, {"t": "F/M", "n": "ACTIVA (N/M)", "p": 800.0}, {"t": "F/M", "n": "ACTIVA (I)", "p": 540.0}, {"t": "F/M", "n": "LIVO SET OF FOR", "p": 400.0}, {"t": "F/M", "n": "Cd110", "p": 460.0}, {"t": "F/M", "n": "SHINE [S.P] B.S.6", "p": 400.0}, {"t": "F/M", "n": "LIVO Bs6", "p": 400.0}, {"t": "F/M", "n": "DIO Bs6", "p": 920.0}, {"t": "F/M", "n": "CD110 Bs6", "p": 400.0}, {"t": "F/M", "n": "Cd110 X", "p": 480.0}, {"t": "S.P.", "n": "SHINE T/2 T/3 T/4", "p": 720.0}, {"t": "S.P.", "n": "CB SHINE (N/M)", "p": 770.0}, {"t": "S.P.", "n": "SHINE LETOST T/6 WIT GLSS", "p": 820.0}, {"t": "S.P.", "n": "SHINE T/7 WIT CROM", "p": 920.0}, {"t": "S.P.", "n": "SHINE S.P", "p": 1000.0}, {"t": "S.P.", "n": "UNICORN", "p": 1020.0}, {"t": "S.P.", "n": "UNICORN (N/M) WT CROM", "p": 1100.0}, {"t": "S.P.", "n": "TWISTER", "p": 780.0}, {"t": "S.P.", "n": "DREAM NEW", "p": 820.0}, {"t": "S.P.", "n": "DREAM NEW T/2", "p": 820.0}, {"t": "S.P.", "n": "DREAM YOGA", "p": 740.0}, {"t": "S.P.", "n": "D.YOGA T/2,T/3", "p": 740.0}, {"t": "S.P.", "n": "STUNNER", "p": 920.0}, {"t": "S.P.", "n": "DIO (O/M)", "p": 2420.0}, {"t": "S.P.", "n": "DIO (N/M)", "p": 1920.0}, {"t": "S.P.", "n": "AVIATOR", "p": 2420.0}, {"t": "S.P.", "n": "LIVO SET OF FOR", "p": 820.0}, {"t": "S.P.", "n": "Cd110", "p": 860.0}, {"t": "S.P.", "n": "SHINE [S.P] B.S.6", "p": 1100.0}, {"t": "S.P.", "n": "LIVO Bs6", "p": 900.0}, {"t": "S.P.", "n": "CD110 Bs6", "p": 940.0}, {"t": "T.P.", "n": "SHINE T/2 T/3 T/4", "p": 800.0}, {"t": "T.P.", "n": "CB SHINE (N/M)", "p": 800.0}, {"t": "T.P.", "n": "SHINE LETOST T/6 WIT GLSS", "p": 900.0}, {"t": "T.P.", "n": "SHINE T/7 WIT CROM", "p": 900.0}, {"t": "T.P.", "n": "SHINE S.P", "p": 900.0}, {"t": "T.P.", "n": "UNICORN", "p": 1000.0}, {"t": "T.P.", "n": "UNICORN (N/M) WT CROM", "p": 1000.0}, {"t": "T.P.", "n": "TWISTER", "p": 780.0}, {"t": "T.P.", "n": "DREAM NEW", "p": 870.0}, {"t": "T.P.", "n": "DREAM NEW T/2", "p": 870.0}, {"t": "T.P.", "n": "DREAM YOGA", "p": 780.0}, {"t": "T.P.", "n": "D.YOGA T/2,T/3", "p": 820.0}, {"t": "T.P.", "n": "STUNNER", "p": 1020.0}, {"t": "T.P.", "n": "LIVO SET OF FOR", "p": 920.0}, {"t": "T.P.", "n": "Cd110", "p": 680.0}, {"t": "T.P.", "n": "SHINE [S.P] B.S.6", "p": 1100.0}, {"t": "T.P.", "n": "LIVO Bs6", "p": 900.0}, {"t": "T.P.", "n": "CD110 Bs6", "p": 850.0}, {"t": "H/L VISOR", "n": "K.B.4.S.", "p": 320.0}, {"t": "H/L VISOR", "n": "CALIBER +115, CROMA", "p": 460.0}, {"t": "H/L VISOR", "n": "BOXER CT", "p": 320.0}, {"t": "H/L VISOR", "n": "CT 100, DLX", "p": 440.0}, {"t": "H/L VISOR", "n": "CT 100 (N/M)", "p": 450.0}, {"t": "H/L VISOR", "n": "CT 100 LETOST", "p": 460.0}, {"t": "H/L VISOR", "n": "CT 100 LED", "p": 500.0}, {"t": "H/L VISOR", "n": "PLATINA", "p": 460.0}, {"t": "H/L VISOR", "n": "PLATINA (N/M)", "p": 520.0}, {"t": "H/L VISOR", "n": "PLATINA L.E.D.", "p": 520.0}, {"t": "H/L VISOR", "n": "PLATINA B.S.6", "p": 620.0}, {"t": "H/L VISOR", "n": "PLATINA 125 CC", "p": 500.0}, {"t": "H/L VISOR", "n": "DISCOVER (O/M) 135 CC", "p": 460.0}, {"t": "H/L VISOR", "n": "DIS -100 CC", "p": 500.0}, {"t": "H/L VISOR", "n": "DIS -150 CC", "p": 500.0}, {"t": "H/L VISOR", "n": "DIS -125 CC (N/M)", "p": 500.0}, {"t": "H/L VISOR", "n": "DISCOVER S.T.", "p": 620.0}, {"t": "H/L VISOR", "n": "DIS -100[M]", "p": 660.0}, {"t": "H/L VISOR", "n": "X.C.D 125 CC", "p": 500.0}, {"t": "H/L VISOR", "n": "X.C.D 135 CC", "p": 640.0}, {"t": "H/L VISOR", "n": "VIKRANTA SET OF 3 WITH CROME", "p": 1180.0}, {"t": "H/L VISOR", "n": "PULSAR DTSI", "p": 440.0}, {"t": "H/L VISOR", "n": "PULSAR DIZITEL", "p": 470.0}, {"t": "H/L VISOR", "n": "PULSAR DIZITEL (N/M)", "p": 500.0}, {"t": "H/L VISOR", "n": "PULSAR DIZITEL LETOS", "p": 600.0}, {"t": "H/L VISOR", "n": "PULSAR DIZITEL (2019/20)", "p": 600.0}, {"t": "H/L VISOR", "n": "PULSAR 135 CC", "p": 560.0}, {"t": "H/L VISOR", "n": "PULSAR 220 CC", "p": 2520.0}, {"t": "H/L VISOR", "n": "CT-110X", "p": 540.0}, {"t": "F/M", "n": "K.B.4.S.", "p": 300.0}, {"t": "F/M", "n": "CALIBER +115, CROMA", "p": 300.0}, {"t": "F/M", "n": "BOXER CT", "p": 300.0}, {"t": "F/M", "n": "BOXER AT, AT", "p": 300.0}, {"t": "F/M", "n": "CT 100, DLX", "p": 300.0}, {"t": "F/M", "n": "CT 100 (N/M)", "p": 300.0}, {"t": "F/M", "n": "CT 100 LETOST", "p": 300.0}, {"t": "F/M", "n": "CT 100 LED", "p": 300.0}, {"t": "F/M", "n": "PLATINA", "p": 300.0}, {"t": "F/M", "n": "PLATINA (N/M)", "p": 360.0}, {"t": "F/M", "n": "PLATINA L.E.D.", "p": 360.0}, {"t": "F/M", "n": "PLATINA B.S.6", "p": 360.0}, {"t": "F/M", "n": "PLATINA 125 CC", "p": 300.0}, {"t": "F/M", "n": "DISCOVER (O/M) 135 CC", "p": 310.0}, {"t": "F/M", "n": "DIS -100 CC", "p": 350.0}, {"t": "F/M", "n": "DIS -150 CC", "p": 350.0}, {"t": "F/M", "n": "DIS -125 CC (N/M)", "p": 350.0}, {"t": "F/M", "n": "DISCOVER S.T.", "p": 360.0}, {"t": "F/M", "n": "DIS -100[M]", "p": 360.0}, {"t": "F/M", "n": "X.C.D 125 CC", "p": 420.0}, {"t": "F/M", "n": "X.C.D 135 CC", "p": 420.0}, {"t": "F/M", "n": "VIKRANTA SET OF 3 WITH CROME", "p": 400.0}, {"t": "F/M", "n": "PULSAR DTSI", "p": 320.0}, {"t": "F/M", "n": "PULSAR DIZITEL", "p": 360.0}, {"t": "F/M", "n": "PULSAR DIZITEL (N/M)", "p": 360.0}, {"t": "F/M", "n": "PULSAR DIZITEL LETOS", "p": 380.0}, {"t": "F/M", "n": "PULSAR DIZITEL (2019/20)", "p": 380.0}, {"t": "F/M", "n": "PULSAR 135 CC", "p": 380.0}, {"t": "F/M", "n": "PULSAR 220 CC", "p": 380.0}, {"t": "F/M", "n": "PULSAR N.S.", "p": 520.0}, {"t": "F/M", "n": "AVIZER", "p": 500.0}, {"t": "F/M", "n": "CT-110X", "p": 480.0}, {"t": "S.P.", "n": "K.B.4.S.", "p": 520.0}, {"t": "S.P.", "n": "CALIBER +115, CROMA", "p": 500.0}, {"t": "S.P.", "n": "BOXER CT", "p": 460.0}, {"t": "S.P.", "n": "BOXER AT, AT", "p": 520.0}, {"t": "S.P.", "n": "CT 100, DLX", "p": 480.0}, {"t": "S.P.", "n": "CT 100 (N/M)", "p": 480.0}, {"t": "S.P.", "n": "CT 100 LETOST", "p": 480.0}, {"t": "S.P.", "n": "CT 100 LED", "p": 480.0}, {"t": "S.P.", "n": "PLATINA", "p": 500.0}, {"t": "S.P.", "n": "PLATINA (N/M)", "p": 720.0}, {"t": "S.P.", "n": "PLATINA L.E.D.", "p": 720.0}, {"t": "S.P.", "n": "PLATINA B.S.6", "p": 720.0}, {"t": "S.P.", "n": "PLATINA 125 CC", "p": 760.0}, {"t": "S.P.", "n": "DISCOVER (O/M) 135 CC", "p": 520.0}, {"t": "S.P.", "n": "DIS -100 CC", "p": 560.0}, {"t": "S.P.", "n": "DIS -150 CC", "p": 570.0}, {"t": "S.P.", "n": "DIS -125 CC (N/M)", "p": 560.0}, {"t": "S.P.", "n": "DISCOVER S.T.", "p": 840.0}, {"t": "S.P.", "n": "DIS -100[M]", "p": 860.0}, {"t": "S.P.", "n": "X.C.D 125 CC", "p": 900.0}, {"t": "S.P.", "n": "X.C.D 135 CC", "p": 1000.0}, {"t": "S.P.", "n": "VIKRANTA SET OF 3 WITH CROME", "p": 870.0}, {"t": "S.P.", "n": "PULSAR DTSI", "p": 480.0}, {"t": "S.P.", "n": "PULSAR DIZITEL", "p": 520.0}, {"t": "S.P.", "n": "PULSAR DIZITEL (N/M)", "p": 570.0}, {"t": "S.P.", "n": "PULSAR DIZITEL LETOS", "p": 570.0}, {"t": "S.P.", "n": "PULSAR DIZITEL (2019/20)", "p": 570.0}, {"t": "S.P.", "n": "PULSAR 135 CC", "p": 820.0}, {"t": "S.P.", "n": "PULSAR 220 CC", "p": 560.0}, {"t": "S.P.", "n": "AVIZER", "p": 960.0}, {"t": "S.P.", "n": "CT-110X", "p": 800.0}, {"t": "T.P.", "n": "CALIBER +115, CROMA", "p": 500.0}, {"t": "T.P.", "n": "CT 100, DLX", "p": 540.0}, {"t": "T.P.", "n": "CT 100 (N/M)", "p": 540.0}, {"t": "T.P.", "n": "CT 100 LETOST", "p": 540.0}, {"t": "T.P.", "n": "CT 100 LED", "p": 540.0}, {"t": "T.P.", "n": "PLATINA", "p": 580.0}, {"t": "T.P.", "n": "PLATINA (N/M)", "p": 660.0}, {"t": "T.P.", "n": "PLATINA L.E.D.", "p": 620.0}, {"t": "T.P.", "n": "PLATINA B.S.6", "p": 620.0}, {"t": "T.P.", "n": "PLATINA 125 CC", "p": 620.0}, {"t": "T.P.", "n": "DISCOVER (O/M) 135 CC", "p": 540.0}, {"t": "T.P.", "n": "DIS -100 CC", "p": 560.0}, {"t": "T.P.", "n": "DIS -150 CC", "p": 570.0}, {"t": "T.P.", "n": "DIS -125 CC (N/M)", "p": 570.0}, {"t": "T.P.", "n": "DISCOVER S.T.", "p": 740.0}, {"t": "T.P.", "n": "DIS -100[M]", "p": 820.0}, {"t": "T.P.", "n": "X.C.D 125 CC", "p": 1400.0}, {"t": "T.P.", "n": "PULSAR DTSI", "p": 520.0}, {"t": "T.P.", "n": "PULSAR DIZITEL", "p": 720.0}, {"t": "T.P.", "n": "PULSAR DIZITEL (N/M)", "p": 780.0}, {"t": "T.P.", "n": "PULSAR DIZITEL LETOS", "p": 780.0}, {"t": "T.P.", "n": "PULSAR DIZITEL (2019/20)", "p": 780.0}, {"t": "T.P.", "n": "PULSAR 135 CC", "p": 1420.0}, {"t": "T.P.", "n": "PULSAR 220 CC", "p": 780.0}, {"t": "H/L VISOR", "n": "SCOOTY (O/M)", "p": 350.0}, {"t": "H/L VISOR", "n": "SCOOTY (N/M)", "p": 360.0}, {"t": "H/L VISOR", "n": "VICTOR (O.M.) + GL", "p": 480.0}, {"t": "H/L VISOR", "n": "VICTOR GLX", "p": 520.0}, {"t": "H/L VISOR", "n": "VICTOR GX", "p": 480.0}, {"t": "H/L VISOR", "n": "VICTOR (N/M)", "p": 660.0}, {"t": "H/L VISOR", "n": "FIERO", "p": 570.0}, {"t": "H/L VISOR", "n": "FIERO/2", "p": 570.0}, {"t": "H/L VISOR", "n": "CENTRA", "p": 360.0}, {"t": "H/L VISOR", "n": "STAR CITY (O/M)+(N/M)", "p": 480.0}, {"t": "H/L VISOR", "n": "STAR SPORTS", "p": 500.0}, {"t": "H/L VISOR", "n": "STAR SPORTS (N/M)", "p": 560.0}, {"t": "H/L VISOR", "n": "STAR C.V.T.I.", "p": 520.0}, {"t": "H/L VISOR", "n": "APACHI", "p": 600.0}, {"t": "H/L VISOR", "n": "STAR CITY + (PLUS)", "p": 560.0}, {"t": "H/L VISOR", "n": "WEGO", "p": 620.0}, {"t": "H/L VISOR", "n": "APACHI R.T.R", "p": 680.0}, {"t": "H/L VISOR", "n": "STAR CITY 110 CC", "p": 480.0}, {"t": "H/L VISOR", "n": "REDON", "p": 620.0}, {"t": "H/L VISOR", "n": "REDON SET (WITH CROM)", "p": 920.0}, {"t": "H/L VISOR", "n": "SCOOTY PEP", "p": 420.0}, {"t": "H/L VISOR", "n": "APACHI 4U (N/M) SETOFU", "p": 1180.0}, {"t": "H/L VISOR", "n": "FREEDOM", "p": 360.0}, {"t": "H/L VISOR", "n": "STAR SPORT Bs6", "p": 560.0}, {"t": "F/M", "n": "VICTOR (O.M.) + GL", "p": 310.0}, {"t": "F/M", "n": "VICTOR GLX", "p": 380.0}, {"t": "F/M", "n": "VICTOR GX", "p": 310.0}, {"t": "F/M", "n": "FIERO", "p": 420.0}, {"t": "F/M", "n": "FIERO/2", "p": 420.0}, {"t": "F/M", "n": "CENTRA", "p": 320.0}, {"t": "F/M", "n": "STAR CITY (O/M)+(N/M)", "p": 320.0}, {"t": "F/M", "n": "STAR SPORTS", "p": 360.0}, {"t": "F/M", "n": "STAR SPORTS (N/M)", "p": 360.0}, {"t": "F/M", "n": "STAR C.V.T.I.", "p": 320.0}, {"t": "F/M", "n": "APACHI", "p": 360.0}, {"t": "F/M", "n": "STAR CITY + (PLUS)", "p": 360.0}, {"t": "F/M", "n": "APACHI R.T.R", "p": 380.0}, {"t": "F/M", "n": "STAR CITY 110 CC", "p": 340.0}, {"t": "F/M", "n": "REDON", "p": 500.0}, {"t": "F/M", "n": "REDON SET (WITH CROM)", "p": 500.0}, {"t": "F/M", "n": "HONET", "p": 360.0}, {"t": "F/M", "n": "PHONIX", "p": 400.0}, {"t": "F/M", "n": "APACHI 4U (N/M) SETOFU", "p": 820.0}, {"t": "F/M", "n": "FREEDOM", "p": 360.0}, {"t": "F/M", "n": "STAR SPORT Bs6", "p": 340.0}, {"t": "S.P.", "n": "SCOOTY (O/M)", "p": 1120.0}, {"t": "S.P.", "n": "SCOOTY (N/M)", "p": 1220.0}, {"t": "S.P.", "n": "VICTOR (O.M.) + GL", "p": 500.0}, {"t": "S.P.", "n": "VICTOR GLX", "p": 820.0}, {"t": "S.P.", "n": "VICTOR GX", "p": 500.0}, {"t": "S.P.", "n": "FIERO/2", "p": 820.0}, {"t": "S.P.", "n": "CENTRA", "p": 720.0}, {"t": "S.P.", "n": "STAR CITY (O/M)+(N/M)", "p": 620.0}, {"t": "S.P.", "n": "STAR SPORTS", "p": 640.0}, {"t": "S.P.", "n": "STAR SPORTS (N/M)", "p": 920.0}, {"t": "S.P.", "n": "STAR C.V.T.I.", "p": 640.0}, {"t": "S.P.", "n": "APACHI", "p": 720.0}, {"t": "S.P.", "n": "STAR CITY + (PLUS)", "p": 1000.0}, {"t": "S.P.", "n": "STAR", "p": 640.0}, {"t": "S.P.", "n": "STAR CITY 110 CC", "p": 680.0}, {"t": "S.P.", "n": "REDON", "p": 920.0}, {"t": "S.P.", "n": "REDON SET (WITH CROM)", "p": 920.0}, {"t": "S.P.", "n": "STAR SPORT Bs6", "p": 900.0}, {"t": "S.P.", "n": "APACHI RTR (N/M)", "p": 920.0}, {"t": "T.P.", "n": "VICTOR (O.M.) + GL", "p": 520.0}, {"t": "T.P.", "n": "VICTOR GLX", "p": 820.0}, {"t": "T.P.", "n": "VICTOR GX", "p": 520.0}, {"t": "T.P.", "n": "FIERO/2", "p": 820.0}, {"t": "T.P.", "n": "CENTRA", "p": 720.0}, {"t": "T.P.", "n": "STAR CITY (O/M)+(N/M)", "p": 640.0}, {"t": "T.P.", "n": "STAR SPORTS", "p": 680.0}, {"t": "T.P.", "n": "STAR SPORTS (N/M)", "p": 700.0}, {"t": "T.P.", "n": "STAR C.V.T.I.", "p": 700.0}, {"t": "T.P.", "n": "APACHI", "p": 820.0}, {"t": "T.P.", "n": "STAR CITY + (PLUS)", "p": 1000.0}, {"t": "T.P.", "n": "STAR CITY 110 CC", "p": 640.0}, {"t": "T.P.", "n": "STAR SPORT Bs6", "p": 680.0}, {"t": "H/L VISOR", "n": "ACCESS", "p": 340.0}, {"t": "H/L VISOR", "n": "ACCESS (N/M)", "p": 560.0}, {"t": "H/L VISOR", "n": "JUPITER", "p": 500.0}, {"t": "H/L VISOR", "n": "HAYATE", "p": 640.0}, {"t": "H/L VISOR", "n": "GIXXER SET OF 5 (OE)", "p": 7540.0}, {"t": "H/L VISOR", "n": "SWISS", "p": 720.0}, {"t": "H/L VISOR", "n": "CENTURO", "p": 1000.0}, {"t": "H/L VISOR", "n": "ACCESS (N/M) WITH CROME", "p": 860.0}, {"t": "H/L VISOR", "n": "ACCESS Bs6 WITH CROME", "p": 960.0}, {"t": "H/L VISOR", "n": "JUPITER 125 Bs6 WITH CROME", "p": 90.0}, {"t": "F/M", "n": "ACCESS", "p": 840.0}, {"t": "F/M", "n": "BURGMAN", "p": 940.0}, {"t": "F/M", "n": "JUPITER", "p": 860.0}, {"t": "F/M", "n": "HAYATE", "p": 420.0}, {"t": "F/M", "n": "GIXXER SET OF 5 (OE)", "p": 540.0}, {"t": "F/M", "n": "MAX 100", "p": 320.0}, {"t": "F/M", "n": "SAMURAI", "p": 320.0}, {"t": "F/M", "n": "CENTURO", "p": 500.0}, {"t": "S.P.", "n": "ACCESS", "p": 2000.0}, {"t": "S.P.", "n": "MAX 100", "p": 420.0}, {"t": "S.P.", "n": "SAMURAI", "p": 570.0}, {"t": "S.P.", "n": "CENTURO", "p": 1180.0}, {"t": "S.P.", "n": "ACCESS Bs6 WITH CROME", "p": 3500.0}, {"t": "T.P.", "n": "HAYATE", "p": 1200.0}, {"t": "T.P.", "n": "SAMURAI", "p": 570.0}, {"t": "T.P.", "n": "CENTURO", "p": 1200.0}, {"t": "H/L VISOR", "n": "CRUX", "p": 420.0}, {"t": "H/L VISOR", "n": "CRUX (S)", "p": 420.0}, {"t": "H/L VISOR", "n": "LIBERO", "p": 460.0}, {"t": "H/L VISOR", "n": "LIBERO G5", "p": 860.0}, {"t": "H/L VISOR", "n": "ALBA, YBR", "p": 900.0}, {"t": "H/L VISOR", "n": "FZ", "p": 680.0}, {"t": "H/L VISOR", "n": "FASCHINO", "p": 800.0}, {"t": "H/L VISOR", "n": "F/Z (N/M)", "p": 680.0}, {"t": "H/L VISOR", "n": "GLADITOR", "p": 1180.0}, {"t": "F/M", "n": "CRUX", "p": 400.0}, {"t": "F/M", "n": "CRUX (S)", "p": 400.0}, {"t": "F/M", "n": "YBX", "p": 400.0}, {"t": "F/M", "n": "LIBERO", "p": 400.0}, {"t": "F/M", "n": "LIBERO G5", "p": 400.0}, {"t": "F/M", "n": "ALBA, YBR", "p": 400.0}, {"t": "F/M", "n": "FZ", "p": 440.0}, {"t": "F/M", "n": "FASCHINO", "p": 800.0}, {"t": "F/M", "n": "F/Z (N/M)", "p": 440.0}, {"t": "S.P.", "n": "CRUX", "p": 580.0}, {"t": "S.P.", "n": "CRUX (S)", "p": 660.0}, {"t": "S.P.", "n": "LIBERO", "p": 740.0}, {"t": "S.P.", "n": "LIBERO G5", "p": 800.0}, {"t": "S.P.", "n": "FZ", "p": 980.0}, {"t": "S.P.", "n": "RX 100", "p": 380.0}, {"t": "S.P.", "n": "F/Z (N/M)", "p": 980.0}, {"t": "T.P.", "n": "CRUX", "p": 580.0}, {"t": "T.P.", "n": "CRUX (S)", "p": 680.0}, {"t": "T.P.", "n": "LIBERO", "p": 720.0}, {"t": "T.P.", "n": "LIBERO G5", "p": 780.0}, {"t": "T.P.", "n": "FZ", "p": 940.0}, {"t": "H.L. VISOR GLASS", "n": "SUPER SPLENDOR", "p": 140.0}, {"t": "H.L. VISOR GLASS", "n": "SUPER SPLENDOR (2)", "p": 180.0}, {"t": "H.L. VISOR GLASS", "n": "PSN PRO", "p": 140.0}, {"t": "H.L. VISOR GLASS", "n": "X. PRO", "p": 140.0}, {"t": "H.L. VISOR GLASS", "n": "GLEMUOR", "p": 140.0}, {"t": "H.L. VISOR GLASS", "n": "MASTRO", "p": 140.0}, {"t": "H.L. VISOR GLASS", "n": "MASTRO (N/M)", "p": 140.0}, {"t": "H.L. VISOR GLASS", "n": "UNICORN", "p": 160.0}, {"t": "H.L. VISOR GLASS", "n": "UNICORN (N/M)", "p": 220.0}, {"t": "H.L. VISOR GLASS", "n": "KARIZAMA", "p": 220.0}, {"t": "H.L. VISOR GLASS", "n": "CBZ", "p": 140.0}, {"t": "H.L. VISOR GLASS", "n": "ACHIVER", "p": 290.0}, {"t": "H.L. VISOR GLASS", "n": "STUNNER", "p": 160.0}, {"t": "H.L. VISOR GLASS", "n": "HUNK", "p": 220.0}, {"t": "H.L. VISOR GLASS", "n": "VICTOR", "p": 140.0}, {"t": "H.L. VISOR GLASS", "n": "VICTOR GLX", "p": 140.0}, {"t": "H.L. VISOR GLASS", "n": "STAR CTY", "p": 140.0}, {"t": "H.L. VISOR GLASS", "n": "STAR SPORT", "p": 140.0}, {"t": "H.L. VISOR GLASS", "n": "STAR SPORT (N/M)", "p": 140.0}, {"t": "H.L. VISOR GLASS", "n": "APACHI", "p": 160.0}, {"t": "H.L. VISOR GLASS", "n": "HAYATE", "p": 170.0}, {"t": "H.L. VISOR GLASS", "n": "BOXER CTY", "p": 140.0}, {"t": "H.L. VISOR GLASS", "n": "CALIBOR 115", "p": 140.0}, {"t": "H.L. VISOR GLASS", "n": "PULSAR DTSI", "p": 140.0}, {"t": "H.L. VISOR GLASS", "n": "PULSAR 220", "p": 320.0}, {"t": "H.L. VISOR GLASS", "n": "PULSAR 135", "p": 220.0}, {"t": "H.L. VISOR GLASS", "n": "PLATINA", "p": 120.0}, {"t": "H.L. VISOR GLASS", "n": "DISCOVER", "p": 120.0}, {"t": "H.L. VISOR GLASS", "n": "GLEMUOR LETOST", "p": 160.0}, {"t": "H.L. VISOR GLASS", "n": "DISCOVER ST", "p": 200.0}, {"t": "H.L. VISOR GLASS", "n": "DIS -100 CC", "p": 130.0}, {"t": "H.L. VISOR GLASS", "n": "X.C.D", "p": 160.0}, {"t": "H.L. VISOR GLASS", "n": "X.C.D 135", "p": 170.0}, {"t": "H.L. VISOR GLASS", "n": "CT 100", "p": 120.0}, {"t": "H.L. VISOR GLASS", "n": "LIBERO", "p": 170.0}, {"t": "H.L. VISOR GLASS", "n": "LIBERO G.5", "p": 220.0}, {"t": "H.L. VISOR GLASS", "n": "RXZ", "p": 260.0}, {"t": "H.L. VISOR GLASS", "n": "GLADIATOR", "p": 220.0}, {"t": "H.L. VISOR GLASS", "n": "ALBA & YBR", "p": 220.0}, {"t": "H.L. VISOR GLASS", "n": "XTEREME (O/M)", "p": 220.0}, {"t": "H.L. VISOR GLASS", "n": "XTEREME (N/M)", "p": 220.0}, {"t": "H.L. VISOR GLASS", "n": "FZ", "p": 140.0}, {"t": "H.L. VISOR GLASS", "n": "ACTIVA 125 CC", "p": 140.0}, {"t": "H.L. VISOR GLASS", "n": "SPLENDOR PRO (2016)", "p": 140.0}, {"t": "H.L. VISOR GLASS", "n": "I SMART", "p": 130.0}, {"t": "H.L. VISOR GLASS", "n": "SHINE LETOST", "p": 160.0}, {"t": "H.L. VISOR GLASS", "n": "LIVO", "p": 150.0}, {"t": "H.L. VISOR GLASS", "n": "SHINE SP", "p": 160.0}, {"t": "H.L. VISOR GLASS", "n": "SHINE T7", "p": 190.0}, {"t": "H.L. VISOR GLASS", "n": "I SMART (N/M)", "p": 140.0}, {"t": "H.L. VISOR GLASS", "n": "STAR CVTI", "p": 140.0}, {"t": "H.L. VISOR GLASS", "n": "XTREME T4", "p": 180.0}, {"t": "H.L. VISOR GLASS", "n": "CENTURO", "p": 220.0}, {"t": "H.L. VISOR GLASS", "n": "X. PRO (N/M)", "p": 160.0}, {"t": "H.L. VISOR GLASS", "n": "GLEMUOR T/4", "p": 160.0}, {"t": "H.L. VISOR GLASS", "n": "SUP SPL T5", "p": 180.0}, {"t": "H.L. VISOR GLASS", "n": "IGNATURE", "p": 180.0}, {"t": "H.L. VISOR GLASS", "n": "PLATINA Bs6", "p": 140.0}, {"t": "H.L. VISOR GLASS", "n": "SHINE Bs6", "p": 220.0}, {"t": "H.L. VISOR GLASS", "n": "FAZER", "p": 320.0}, {"t": "H.L. VISOR GLASS", "n": "RAV", "p": 200.0}, {"t": "H.L. VISOR GLASS", "n": "FIERO", "p": 140.0}, {"t": "H.L. VISOR GLASS", "n": "GIXXER", "p": 240.0}, {"t": "H.L. VISOR GLASS", "n": "PASSION PRO Bs6", "p": 140.0}, {"t": "H.L. VISOR GLASS", "n": "LIVO Bs6", "p": 150.0}, {"t": "H.L. VISOR GLASS", "n": "DESTONY", "p": 150.0}, {"t": "H.L. VISOR GLASS", "n": "SUP SPL Bs6", "p": 160.0}, {"t": "H.L. VISOR GLASS", "n": "VIKRANT", "p": 210.0}, {"t": "FRONT COWL", "n": "MASTRO", "p": 1620.0}, {"t": "FRONT COWL", "n": "MASTRO (N/M)", "p": 1820.0}, {"t": "FRONT COWL", "n": "INNER COVER AVIDITOR", "p": 900.0}, {"t": "FRONT COWL", "n": "INNER COVER ACTIVA (N/M)", "p": 780.0}, {"t": "FRONT COWL", "n": "INNER COVER ACTIVA [N/M] DELHI WALA", "p": 570.0}, {"t": "FRONT COWL", "n": "ENGINE GUARD PULSAR DIGITAL", "p": 1040.0}, {"t": "FRONT COWL", "n": "ENGINE GUARD APACHI RTR", "p": 1040.0}, {"t": "LOWER", "n": "KARIZMA", "p": 620.0}, {"t": "LOWER", "n": "PLEASURE", "p": 820.0}, {"t": "LOWER", "n": "PLEASURE (N/M)", "p": 920.0}, {"t": "LOWER", "n": "DIO (O/M)", "p": 1620.0}, {"t": "LOWER", "n": "DIO (N/M)", "p": 1000.0}, {"t": "LOWER", "n": "JUPITOR", "p": 970.0}, {"t": "LOWER", "n": "SCOOTY PEP", "p": 1420.0}, {"t": "LOWER", "n": "PLEASURE PLUS", "p": 1200.0}, {"t": "LOWER", "n": "FLOOR ROAD ACTIVA 3G", "p": 1800.0}, {"t": "LOWER", "n": "CAP ACTIVA (N/M)", "p": 1180.0}, {"t": "MITOR COVER", "n": "NXG & ISMART", "p": 220.0}, {"t": "MITOR COVER", "n": "ACTIVA (N/M) & 3G & 4G", "p": 290.0}, {"t": "MITOR COVER", "n": "DRM NEO", "p": 380.0}, {"t": "MITOR COVER", "n": "YOGA", "p": 380.0}, {"t": "MITOR COVER", "n": "DISCOVER", "p": 130.0}, {"t": "MITOR COVER", "n": "CT 100", "p": 120.0}, {"t": "MITOR COVER", "n": "REAL MADFLAP SPL", "p": 70.0}, {"t": "MITOR COVER", "n": "SHINE", "p": 400.0}, {"t": "MITOR COVER", "n": "STAR CITY", "p": 160.0}, {"t": "MITOR COVER", "n": "ACTIVA 5G", "p": 380.0}, {"t": "MITOR COVER", "n": "PRO DIZITAL", "p": 160.0}, {"t": "MITOR COVER", "n": "SHHINE Bs6", "p": 440.0}, {"t": "MITOR COVER", "n": "PLATINA", "p": 160.0}, {"t": "MITOR COVER", "n": "DIS-100CC", "p": 160.0}, {"t": "MITOR COVER", "n": "ACTIVA 6G", "p": 360.0}, {"t": "MITOR COVER", "n": "HF DLX120", "p": 120.0}, {"t": "MITOR COVER", "n": "STAR CITY PLUS Bs6", "p": 140.0}, {"t": "MITOR COVER", "n": "SPL PRO", "p": 40.0}, {"t": "MITOR COVER", "n": "PLATINA (N/M)", "p": 160.0}, {"t": "MITOR COVER", "n": "ACTIVA 5G (2)", "p": 320.0}, {"t": "MITOR COVER", "n": "PASSION", "p": 150.0}, {"t": "MITOR COVER", "n": "PULSAR 135", "p": 340.0}, {"t": "MITOR COVER", "n": "JUPITOR", "p": 330.0}, {"t": "CROME PATTI", "n": "ACTIVA 125 CC", "p": 880.0}, {"t": "CROME PATTI", "n": "ACTIVA 5G", "p": 180.0}, {"t": "CROME PATTI", "n": "ACTIVA 6G", "p": 200.0}, {"t": "CROME PATTI", "n": "AVIDITOR 125", "p": 880.0}];
+const TYPES = ["F/M","H/L VISOR","H.L. VISOR GLASS","T.P.","S.P.","FRONT COWL","LOWER","MITOR COVER","CROME PATTI"];
 
-// ── STATE ──
 let pages = [], billData = null, invoiceCounter = 1;
 window.onload = () => { const s = localStorage.getItem('inv_count'); if(s) invoiceCounter = parseInt(s); };
 
-// ── FUZZY MATCH ──
-function normalize(s){ return s.toUpperCase().replace(/[^A-Z0-9]/g,''); }
-function similarity(a, b){
-  a = normalize(a); b = normalize(b);
-  if(b.includes(a) || a.includes(b)) return 0.9;
-  let matches = 0;
-  for(let i=0;i<Math.min(a.length,b.length);i++){ if(a[i]===b[i]) matches++; }
-  return matches / Math.max(a.length, b.length);
+// ═══ FUZZY MATCHING ═══
+function norm(s){ return String(s||'').toUpperCase().replace(/[^A-Z0-9]/g,''); }
+function sim(a, b){
+  a = norm(a); b = norm(b);
+  if(!a || !b) return 0;
+  if(a === b) return 1;
+  if(b.includes(a) || a.includes(b)) return 0.88;
+  let m = 0;
+  const len = Math.min(a.length, b.length);
+  for(let i=0;i<len;i++){ if(a[i]===b[i]) m++; }
+  return m / Math.max(a.length, b.length);
 }
-function findMatch(scannedName){
+function findMatch(scannedType, scannedName){
   let best = null, bestScore = 0;
   for(const p of PRODUCTS){
-    const fullName = p.cat + ' ' + p.name;
-    const s = Math.max(similarity(scannedName, fullName), similarity(scannedName, p.name));
+    // type must roughly match if provided
+    const typeOk = !scannedType || sim(scannedType, p.t) > 0.5;
+    if(!typeOk) continue;
+    const s = sim(scannedName, p.n);
     if(s > bestScore && s > 0.45){ bestScore = s; best = p; }
   }
-  return best ? { product: best.cat + ' ' + best.name, price: best.price, score: bestScore } : null;
+  return best ? { type: best.t, product: best.n, price: best.p, score: bestScore } : null;
 }
 
-// ── UPLOADS ──
+// ═══ UPLOADS ═══
 function toBase64(file){ return new Promise((res,rej)=>{ const r=new FileReader(); r.onload=()=>res(r.result.split(',')[1]); r.onerror=rej; r.readAsDataURL(file); }); }
 async function addPage(inp){
   const file = inp.files[0]; if(!file) return;
@@ -187,11 +196,11 @@ function toggleDisc(){
   if(billData) refreshTotals();
 }
 
-// ── SCAN ──
+// ═══ SCAN ═══
 async function runScan(){
   const btn = document.getElementById('btn-scan'); btn.disabled = true;
   const out = document.getElementById('output');
-  out.innerHTML = '<div class="card"><div class="status"><span class="spinner"></span> Reading your bill...</div></div>';
+  out.innerHTML = `<div class="card"><div class="status"><span class="spinner"></span> Reading your bill...</div></div>`;
   try {
     const r = await fetch('/api/scan', {
       method:'POST', headers:{'Content-Type':'application/json'},
@@ -205,19 +214,17 @@ async function runScan(){
       btn.disabled = false; return;
     }
 
-    // Apply fuzzy matching to each item
-    parsed.items = parsed.items.map(it => {
-      const match = findMatch(it.product);
+    // Fuzzy match each item against 666-product master list
+    parsed.items = (parsed.items||[]).map(it => {
+      const match = findMatch(it.type, it.product);
       if(match && match.score > 0.55){
-        return {
-          ...it,
-          product: match.product,
-          rate: it.rate > 0 ? it.rate : match.price,
-          amount: it.qty * (it.rate > 0 ? it.rate : match.price),
-          _matched: true
-        };
+        const rate = it.rate > 0 ? it.rate : match.price;
+        return { ...it, type: match.type, product: match.product, rate: rate, amount: (it.qty||0) * rate, _matched: true };
       }
-      return it;
+      // type fallback — snap to closest valid type
+      let bestT = it.type || 'F/M', bestS = 0;
+      for(const t of TYPES){ const s = sim(it.type, t); if(s > bestS){ bestS = s; bestT = t; } }
+      return { ...it, type: bestS > 0.4 ? bestT : (it.type||'F/M'), _matched: false };
     });
 
     billData = parsed;
@@ -228,7 +235,7 @@ async function runScan(){
   }
 }
 
-// ── TOTALS ──
+// ═══ TOTALS ═══
 function calcTotals(items, gstOn, gstPct, discType, discVal){
   let subtotal=0, itemDiscTotal=0;
   items.forEach(it=>{
@@ -251,7 +258,10 @@ function refreshTotals(){
   renderBill(gstOn,gstPct,discType,discVal);
 }
 
-// ── RENDER BILL ──
+// ═══ RENDER EDITABLE BILL ═══
+function typeOptions(sel){
+  return TYPES.map(t=>`<option value="${t}" ${t===sel?'selected':''}>${t}</option>`).join('');
+}
 function renderBill(gstOn,gstPct,discType,discVal){
   const d=billData, t=calcTotals(d.items,gstOn,gstPct,discType,discVal);
   const today=new Date().toLocaleDateString('en-IN');
@@ -264,7 +274,8 @@ function renderBill(gstOn,gstPct,discType,discVal){
     const badge=it._matched?'<span class="match-badge">matched</span>':'';
     return `<tr>
       <td style="color:var(--gray);font-size:12px">${i+1}</td>
-      <td><input value="${it.product||''}" onchange="billData.items[${i}].product=this.value">${badge}</td>
+      <td style="min-width:110px"><select onchange="billData.items[${i}].type=this.value">${typeOptions(it.type)}</select></td>
+      <td><input value="${(it.product||'').replace(/"/g,'&quot;')}" onchange="billData.items[${i}].product=this.value">${badge}</td>
       <td><input type="number" value="${it.qty||0}" style="width:50px" onchange="billData.items[${i}].qty=parseFloat(this.value)||0;billData.items[${i}].amount=billData.items[${i}].qty*(billData.items[${i}].rate||0);refreshTotals()"></td>
       <td><input type="number" value="${it.rate||0}" style="width:65px" onchange="billData.items[${i}].rate=parseFloat(this.value)||0;billData.items[${i}].amount=(billData.items[${i}].qty||0)*billData.items[${i}].rate;refreshTotals()"></td>
       ${dc}
@@ -281,16 +292,16 @@ function renderBill(gstOn,gstPct,discType,discVal){
     <div class="card">
       <div class="card-label" style="color:var(--green)">✓ Bill ready — edit anything below</div>
       <div class="meta-grid">
-        <div class="mg"><label>Party / Customer</label><input id="b-party" value="${d.party||''}"></div>
+        <div class="mg"><label>Party / Customer</label><input id="b-party" value="${(d.party||'').replace(/"/g,'&quot;')}"></div>
         <div class="mg"><label>Invoice No</label><input id="b-inv" value="${invNo}"></div>
         <div class="mg"><label>Date</label><input id="b-date" value="${d.date||today}"></div>
-        <div class="mg"><label>Billing No</label><input id="b-bill" value="${d.billing_no||''}"></div>
+        <div class="mg"><label>Billing No</label><input id="b-bill" value="${(d.billing_no||'').replace(/"/g,'&quot;')}"></div>
       </div>
       <table>
-        <thead><tr><th>#</th><th>Product</th><th>Qty</th><th>Rate</th>${discCol}<th style="text-align:right">Amount</th><th></th></tr></thead>
+        <thead><tr><th>#</th><th>Type</th><th>Product</th><th>Qty</th><th>Rate</th>${discCol}<th style="text-align:right">Amount</th><th></th></tr></thead>
         <tbody>${rows}</tbody>
       </table>
-      <button class="btn-ghost" style="font-size:12px;margin-bottom:12px;" onclick="billData.items.push({product:'New Item',qty:1,rate:0,amount:0,_matched:false});refreshTotals()">+ Add item</button>
+      <button class="btn-ghost" style="font-size:12px;margin-bottom:12px;" onclick="billData.items.push({type:'F/M',product:'New Item',qty:1,rate:0,amount:0,_matched:false});refreshTotals()">+ Add item</button>
       <div class="totals">${subRow}${discRow}${gstRow}<div class="tr grand"><span>Grand Total</span><span>₹${t.grand.toFixed(2)}</span></div></div>
       <div class="actions">
         <button class="btn-ghost" onclick="generatePrint()">🖨️ Download / Print</button>
@@ -299,180 +310,172 @@ function renderBill(gstOn,gstPct,discType,discVal){
       </div>
     </div>`;
 
-  preparePrintData(t,gstOn,gstPct,invNo);
+  window._totals = t; window._gstOn = gstOn; window._gstPct = gstPct;
   document.getElementById('btn-scan').disabled=false;
 }
 
-// ── PRINT DATA ──
-function preparePrintData(t,gstOn,gstPct,invNo){
-  window._printData = {
-    t, gstOn, gstPct, invNo,
-    party: document.getElementById('b-party')?.value||'',
-    date: document.getElementById('b-date')?.value||new Date().toLocaleDateString('en-IN'),
-    bill: document.getElementById('b-bill')?.value||'',
-    items: billData.items,
-    fmt: document.getElementById('fmt-choice').value
-  };
-}
-
+// ═══ PRINT — HIGH QUALITY ═══
 function generatePrint(){
   invoiceCounter++; localStorage.setItem('inv_count', invoiceCounter);
-  const p = window._printData;
   const fmt = document.getElementById('fmt-choice').value;
-  if(fmt==='mama'){
-    printMamaFormat(p);
-  } else {
-    printSimpleFormat(p);
-  }
+  const p = {
+    t: window._totals, gstOn: window._gstOn, gstPct: window._gstPct,
+    invNo: document.getElementById('b-inv').value,
+    party: document.getElementById('b-party').value,
+    date: document.getElementById('b-date').value,
+    bill: document.getElementById('b-bill').value,
+    items: billData.items
+  };
+  if(fmt==='mama') printMama(p); else printSimple(p);
 }
 
-// ── MAMA FORMAT (M-143 exact layout) ──
-function printMamaFormat(p){
+// ── MAMA FORMAT — strong borders, bold, exact M-143 layout ──
+function printMama(p){
+  const B = '1.2px solid #000';
   const rows = p.items.map((it,i)=>`
     <tr>
-      <td>${i+1}</td>
-      <td>${it.product||''}</td>
-      <td></td>
-      <td style="text-align:right">${parseFloat(it.qty||0).toFixed(3)}</td>
-      <td style="text-align:right">${parseFloat(it.rate||0).toFixed(2)}</td>
-      <td></td>
-      <td style="text-align:right">${parseFloat(it.amount||0).toFixed(2)}</td>
-      <td style="text-align:right">${parseFloat(it.amount||0).toFixed(2)}</td>
-      <td></td>
+      <td style="border:${B};padding:5px 4px;text-align:center;font-size:11px">${i+1}</td>
+      <td style="border:${B};padding:5px 6px;font-size:11px;font-weight:600">${it.type||''}</td>
+      <td style="border:${B};padding:5px 6px;font-size:11px;font-weight:600">${it.product||''}</td>
+      <td style="border:${B};padding:5px 4px;text-align:right;font-size:11px">${parseFloat(it.qty||0).toFixed(3)}</td>
+      <td style="border:${B};padding:5px 4px;text-align:right;font-size:11px">${parseFloat(it.rate||0).toFixed(2)}</td>
+      <td style="border:${B};padding:5px 4px;text-align:right;font-size:11px">${(it._disc?((it._disc/(parseFloat(it.amount)||1))*100).toFixed(2)+'%':'')}</td>
+      <td style="border:${B};padding:5px 4px;text-align:right;font-size:11px;font-weight:600">${parseFloat(it._net!=null?it._net:it.amount||0).toFixed(2)}</td>
+      <td style="border:${B};padding:5px 4px;text-align:right;font-size:11px">${parseFloat(it._net!=null?it._net:it.amount||0).toFixed(2)}</td>
+      <td style="border:${B};padding:5px 4px;font-size:11px"></td>
     </tr>`).join('');
 
-  const grandTotal = p.t.grand;
-  const billAmt = p.t.subtotal;
+  const grand = p.t.grand;
+  const roundedGrand = Math.round(grand);
+  const roundOff = (roundedGrand - grand).toFixed(2);
 
   document.getElementById('print-area').innerHTML = `
-    <div style="max-width:740px;margin:auto;font-family:Arial,sans-serif;font-size:11px;color:#000;">
-      
-      <!-- HEADER -->
-      <div style="text-align:center;border-bottom:1.5px solid #000;padding-bottom:6px;margin-bottom:6px;">
-        <div style="font-size:20px;font-weight:bold;letter-spacing:1px;">ESTIMATE</div>
-        <div style="font-size:13px;font-weight:bold;">AHMEDABAD</div>
-        <div style="display:flex;justify-content:space-between;margin-top:4px;font-size:11px;">
+    <div style="max-width:760px;margin:auto;color:#000;font-family:Arial,Helvetica,sans-serif;">
+
+      <div style="text-align:center;border-bottom:2px solid #000;padding-bottom:8px;margin-bottom:8px;">
+        <div style="font-size:24px;font-weight:900;letter-spacing:2px;">ESTIMATE</div>
+        <div style="font-size:14px;font-weight:700;margin-top:2px;">AHMEDABAD</div>
+        <div style="display:flex;justify-content:space-between;margin-top:6px;font-size:11px;font-weight:600;">
           <span>Debit Memo</span><span>OTHER</span><span>Original</span>
         </div>
       </div>
 
-      <!-- PARTY + INVOICE ROW -->
-      <div style="display:flex;justify-content:space-between;margin-bottom:6px;border-bottom:1px solid #ccc;padding-bottom:6px;">
-        <div>
-          <span style="font-weight:bold;">M/s. :</span>
-          <span style="font-size:13px;font-weight:bold;margin-left:6px;">${p.party||'PARTY NAME'}</span><br>
-          <span style="margin-top:3px;display:inline-block">${p.bill ? 'MORBI' : 'MORBI'}</span>
-        </div>
-        <div style="text-align:right;">
-          <div><b>Invoice No. :</b> ${p.invNo}</div>
-          <div style="margin-top:3px;"><b>Date :</b> ${p.date}</div>
-        </div>
-      </div>
+      <table style="width:100%;border-collapse:collapse;margin-bottom:8px;">
+        <tr>
+          <td style="font-size:12px;padding:3px 0;"><b>M/s. :</b> <span style="font-size:14px;font-weight:700;">${p.party||'_______________'}</span></td>
+          <td style="text-align:right;font-size:12px;padding:3px 0;"><b>Invoice No. :</b> ${p.invNo}</td>
+        </tr>
+        <tr>
+          <td style="font-size:11px;padding:2px 0;">Place of Supply : 24-Gujarat</td>
+          <td style="text-align:right;font-size:12px;padding:2px 0;"><b>Date :</b> ${p.date}</td>
+        </tr>
+        ${p.bill?`<tr><td style="font-size:11px;padding:2px 0;"><b>Billing No :</b> ${p.bill}</td><td></td></tr>`:''}
+      </table>
 
-      <!-- GST + PLACE -->
-      <div style="margin-bottom:6px;border-bottom:1px solid #ccc;padding-bottom:4px;font-size:10px;">
-        Place of Supply : 24-Gujarat
-      </div>
-
-      <!-- ITEMS TABLE -->
-      <table style="width:100%;border-collapse:collapse;font-size:10.5px;margin-bottom:8px;">
+      <table style="width:100%;border-collapse:collapse;margin-bottom:10px;">
         <thead>
-          <tr style="background:#f0f0f0;">
-            <th style="border:1px solid #999;padding:5px 4px;width:24px">Sr.</th>
-            <th style="border:1px solid #999;padding:5px 4px;text-align:left;">Product Name</th>
-            <th style="border:1px solid #999;padding:5px 4px;width:38px">HSN/SAC<br>Code</th>
-            <th style="border:1px solid #999;padding:5px 4px;width:46px">Qty</th>
-            <th style="border:1px solid #999;padding:5px 4px;width:46px">Rate</th>
-            <th style="border:1px solid #999;padding:5px 4px;width:38px">Disc.</th>
-            <th style="border:1px solid #999;padding:5px 4px;width:58px">Net<br>Amount</th>
-            <th style="border:1px solid #999;padding:5px 4px;width:58px">Taxable<br>Amount</th>
-            <th style="border:1px solid #999;padding:5px 4px;width:46px">Tax<br>Amount<br>%GST</th>
+          <tr style="background:#e8e8e8;">
+            <th style="border:1.2px solid #000;padding:6px 4px;font-size:10px;width:26px;">Sr.</th>
+            <th style="border:1.2px solid #000;padding:6px 4px;font-size:10px;width:80px;">Type</th>
+            <th style="border:1.2px solid #000;padding:6px 4px;font-size:10px;text-align:left;">Product Name</th>
+            <th style="border:1.2px solid #000;padding:6px 4px;font-size:10px;width:50px;">Qty</th>
+            <th style="border:1.2px solid #000;padding:6px 4px;font-size:10px;width:50px;">Rate</th>
+            <th style="border:1.2px solid #000;padding:6px 4px;font-size:10px;width:42px;">Disc.</th>
+            <th style="border:1.2px solid #000;padding:6px 4px;font-size:10px;width:60px;">Net<br>Amount</th>
+            <th style="border:1.2px solid #000;padding:6px 4px;font-size:10px;width:60px;">Taxable<br>Amount</th>
+            <th style="border:1.2px solid #000;padding:6px 4px;font-size:10px;width:48px;">Tax Amt<br>%GST</th>
           </tr>
         </thead>
         <tbody>${rows}</tbody>
       </table>
 
-      <!-- TOTALS -->
-      <div style="display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:8px;">
-        <div style="font-size:10px;">
-          <div><b>Total GST :</b></div>
-          <div style="margin-top:4px;">GSTIN No.: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Total</div>
-          <div style="margin-top:2px;">${billAmt.toFixed(2)} &nbsp;&nbsp;&nbsp;&nbsp; ${grandTotal.toFixed(2)} &nbsp;&nbsp;&nbsp;&nbsp; ${grandTotal.toFixed(2)}</div>
-        </div>
-        <div style="text-align:right;">
-          <div style="font-size:11px;margin-bottom:4px;">Bill Amount :</div>
-          <div style="font-size:11px;margin-bottom:4px;">Round Off &nbsp; 0.50</div>
-          <div style="font-size:14px;font-weight:bold;border-top:1.5px solid #000;padding-top:4px;">Grand Total &nbsp;&nbsp; ${grandTotal.toFixed(2)}</div>
-        </div>
+      <table style="width:100%;border-collapse:collapse;margin-bottom:8px;">
+        <tr>
+          <td style="vertical-align:top;font-size:11px;">
+            <b>Total GST :</b> ${p.gstOn?('₹'+p.t.gstAmt.toFixed(2)):'—'}<br>
+            <span style="margin-top:4px;display:inline-block;"><b>GSTIN No.:</b></span>
+          </td>
+          <td style="text-align:right;vertical-align:top;">
+            <table style="margin-left:auto;border-collapse:collapse;font-size:12px;">
+              <tr><td style="padding:3px 14px 3px 0;text-align:right;">Bill Amount :</td><td style="text-align:right;font-weight:600;">${p.t.subtotal.toFixed(2)}</td></tr>
+              ${(p.t.billDisc>0||p.t.itemDiscTotal>0)?`<tr><td style="padding:3px 14px 3px 0;text-align:right;">Discount :</td><td style="text-align:right;font-weight:600;">- ${(p.t.billDisc+p.t.itemDiscTotal).toFixed(2)}</td></tr>`:''}
+              ${p.gstOn?`<tr><td style="padding:3px 14px 3px 0;text-align:right;">GST (${p.gstPct}%) :</td><td style="text-align:right;font-weight:600;">${p.t.gstAmt.toFixed(2)}</td></tr>`:''}
+              <tr><td style="padding:3px 14px 3px 0;text-align:right;">Round Off :</td><td style="text-align:right;">${roundOff}</td></tr>
+              <tr style="border-top:2px solid #000;"><td style="padding:6px 14px 3px 0;text-align:right;font-size:15px;font-weight:900;">Grand Total :</td><td style="text-align:right;font-size:15px;font-weight:900;">₹${roundedGrand.toLocaleString('en-IN')}.00</td></tr>
+            </table>
+          </td>
+        </tr>
+      </table>
+
+      <div style="border-top:1.2px solid #000;border-bottom:1.2px solid #000;padding:6px 0;margin-bottom:10px;font-size:12px;">
+        <b>Amount in words :</b> <span style="font-weight:700;">${numberToWords(roundedGrand)} Only</span>
       </div>
 
-      <!-- AMOUNT IN WORDS -->
-      <div style="margin-bottom:8px;font-size:10px;border-top:1px solid #ccc;padding-top:4px;">
-        Bill Amount : <b>${numberToWords(Math.round(grandTotal))} Only</b>
-      </div>
-
-      <!-- SIGNATURE + TERMS -->
-      <div style="border-top:1px solid #ccc;padding-top:8px;display:flex;justify-content:space-between;font-size:10px;">
-        <div>
-          <b>Note :</b><br>
-          <b>Terms & Condition :</b><br>
-          1. Goods once sold will not be taken back.<br>
-          2. Interest @18% p.a. will be charged if payment is not made within due date.<br>
-          3. Our risk and responsibility ceases as soon as the goods leave our premises.<br>
-          4. "Subject to 'AHMEDABAD' Jurisdiction only. E.&amp;O.E"
-        </div>
-        <div style="text-align:right;">
-          For, ESTIMATE<br><br><br>
-          (Authorised Signatory)
-        </div>
-      </div>
+      <table style="width:100%;border-collapse:collapse;">
+        <tr>
+          <td style="vertical-align:top;font-size:10px;line-height:1.6;">
+            <b>Note :</b><br>
+            <b>Terms &amp; Condition :</b><br>
+            1. Goods once sold will not be taken back.<br>
+            2. Interest @18% p.a. will be charged if payment is not made within due date.<br>
+            3. Our risk and responsibility ceases as soon as the goods leave our premises.<br>
+            4. "Subject to 'AHMEDABAD' Jurisdiction only. E.&amp;O.E"
+          </td>
+          <td style="vertical-align:top;text-align:right;font-size:12px;font-weight:700;">
+            For, ESTIMATE<br><br><br><br>
+            (Authorised Signatory)
+          </td>
+        </tr>
+      </table>
     </div>`;
-
   window.print();
 }
 
 // ── SIMPLE FORMAT ──
-function printSimpleFormat(p){
+function printSimple(p){
+  const B = '1.2px solid #000';
   const rows = p.items.map((it,i)=>`<tr>
-    <td style="border:1px solid #ccc;padding:6px">${i+1}</td>
-    <td style="border:1px solid #ccc;padding:6px">${it.product||''}</td>
-    <td style="border:1px solid #ccc;padding:6px;text-align:right">${it.qty||0}</td>
-    <td style="border:1px solid #ccc;padding:6px;text-align:right">₹${parseFloat(it.rate||0).toFixed(2)}</td>
-    <td style="border:1px solid #ccc;padding:6px;text-align:right">₹${parseFloat(it.amount||0).toFixed(2)}</td>
+    <td style="border:${B};padding:6px;text-align:center">${i+1}</td>
+    <td style="border:${B};padding:6px;font-weight:600">${it.type||''}</td>
+    <td style="border:${B};padding:6px;font-weight:600">${it.product||''}</td>
+    <td style="border:${B};padding:6px;text-align:right">${it.qty||0}</td>
+    <td style="border:${B};padding:6px;text-align:right">₹${parseFloat(it.rate||0).toFixed(2)}</td>
+    <td style="border:${B};padding:6px;text-align:right;font-weight:600">₹${parseFloat(it.amount||0).toFixed(2)}</td>
   </tr>`).join('');
-  const gstRow = p.gstOn?`<tr><td colspan="4" style="text-align:right;padding:5px">GST (${p.gstPct}%)</td><td style="text-align:right;padding:5px">₹${p.t.gstAmt.toFixed(2)}</td></tr>`:'';
-  const discRow = (p.t.billDisc>0||p.t.itemDiscTotal>0)?`<tr><td colspan="4" style="text-align:right;padding:5px;color:green">Discount</td><td style="text-align:right;padding:5px;color:green">-₹${(p.t.billDisc+p.t.itemDiscTotal).toFixed(2)}</td></tr>`:'';
+  const gstRow = p.gstOn?`<tr><td colspan="5" style="text-align:right;padding:5px;font-weight:600">GST (${p.gstPct}%)</td><td style="text-align:right;padding:5px;font-weight:600">₹${p.t.gstAmt.toFixed(2)}</td></tr>`:'';
+  const discRow = (p.t.billDisc>0||p.t.itemDiscTotal>0)?`<tr><td colspan="5" style="text-align:right;padding:5px;">Discount</td><td style="text-align:right;padding:5px;">- ₹${(p.t.billDisc+p.t.itemDiscTotal).toFixed(2)}</td></tr>`:'';
 
   document.getElementById('print-area').innerHTML = `
-    <div style="font-family:Arial;max-width:700px;margin:auto;color:#1a2b4a">
-      <h1 style="text-align:center;font-family:Georgia,serif;margin-bottom:4px">ESTIMATE</h1>
-      <p style="text-align:center;font-size:12px;color:#666;margin-bottom:16px">Tax Invoice / Debit Memo</p>
-      <div style="display:flex;justify-content:space-between;margin-bottom:14px;font-size:13px">
+    <div style="font-family:Arial;max-width:720px;margin:auto;color:#000;">
+      <h1 style="text-align:center;margin-bottom:4px;font-size:24px;font-weight:900;">ESTIMATE</h1>
+      <p style="text-align:center;font-size:12px;margin-bottom:18px;">Tax Invoice / Debit Memo</p>
+      <div style="display:flex;justify-content:space-between;margin-bottom:14px;font-size:13px;">
         <div><b>Party:</b> ${p.party}<br><b>Billing No:</b> ${p.bill}</div>
-        <div style="text-align:right"><b>Invoice No:</b> ${p.invNo}<br><b>Date:</b> ${p.date}</div>
+        <div style="text-align:right;"><b>Invoice No:</b> ${p.invNo}<br><b>Date:</b> ${p.date}</div>
       </div>
-      <table style="width:100%;border-collapse:collapse;font-size:13px;margin-bottom:14px">
-        <thead><tr style="background:#f0f0f0">
-          <th style="border:1px solid #ccc;padding:7px">#</th>
-          <th style="border:1px solid #ccc;padding:7px;text-align:left">Product</th>
-          <th style="border:1px solid #ccc;padding:7px">Qty</th>
-          <th style="border:1px solid #ccc;padding:7px">Rate</th>
-          <th style="border:1px solid #ccc;padding:7px">Amount</th>
+      <table style="width:100%;border-collapse:collapse;font-size:13px;margin-bottom:14px;">
+        <thead><tr style="background:#e8e8e8;">
+          <th style="border:${B};padding:7px;">#</th>
+          <th style="border:${B};padding:7px;">Type</th>
+          <th style="border:${B};padding:7px;text-align:left;">Product</th>
+          <th style="border:${B};padding:7px;">Qty</th>
+          <th style="border:${B};padding:7px;">Rate</th>
+          <th style="border:${B};padding:7px;">Amount</th>
         </tr></thead>
         <tbody>${rows}</tbody>
       </table>
-      <table style="width:280px;margin-left:auto;font-size:13px">${discRow}${gstRow}
-        <tr style="font-weight:700;font-size:15px;border-top:2px solid #000">
-          <td colspan="4" style="text-align:right;padding:7px">Grand Total</td>
-          <td style="text-align:right;padding:7px">₹${p.t.grand.toFixed(2)}</td>
+      <table style="width:300px;margin-left:auto;font-size:13px;border-collapse:collapse;">${discRow}${gstRow}
+        <tr style="border-top:2px solid #000;">
+          <td colspan="5" style="text-align:right;padding:7px;font-size:15px;font-weight:900;">Grand Total</td>
+          <td style="text-align:right;padding:7px;font-size:15px;font-weight:900;">₹${p.t.grand.toFixed(2)}</td>
         </tr>
       </table>
-      <p style="margin-top:30px;text-align:right;font-size:13px">For, ESTIMATE<br><br>(Authorised Signatory)</p>
+      <p style="margin-top:34px;text-align:right;font-size:13px;font-weight:700;">For, ESTIMATE<br><br><br>(Authorised Signatory)</p>
     </div>`;
   window.print();
 }
 
-// ── NUMBER TO WORDS ──
+// ═══ NUMBER TO WORDS (Indian system) ═══
 function numberToWords(n){
   const a=['','One','Two','Three','Four','Five','Six','Seven','Eight','Nine','Ten','Eleven','Twelve','Thirteen','Fourteen','Fifteen','Sixteen','Seventeen','Eighteen','Nineteen'];
   const b=['','','Twenty','Thirty','Forty','Fifty','Sixty','Seventy','Eighty','Ninety'];
@@ -485,11 +488,12 @@ function numberToWords(n){
   return numberToWords(Math.floor(n/10000000))+' Crore'+(n%10000000?' '+numberToWords(n%10000000):'');
 }
 
-// ── WHATSAPP ──
+// ═══ WHATSAPP ═══
 function shareWhatsApp(){
-  const d=billData; const party=document.getElementById('b-party')?.value||'';
-  let msg=`*BILL*\n`; if(party) msg+=`Party: ${party}\n`; msg+=`\n`;
-  d.items.forEach((it,i)=>{ msg+=`${i+1}. ${it.product} — ${it.qty} x ₹${it.rate} = ₹${parseFloat(it.amount||0).toFixed(2)}\n`; });
+  const d=billData; const party=document.getElementById('b-party').value||'';
+  let msg='*BILL*\n'; if(party) msg+='Party: '+party+'\n'; msg+='\n';
+  d.items.forEach((it,i)=>{ msg+=(i+1)+'. ['+(it.type||'')+'] '+it.product+' — '+it.qty+' x ₹'+it.rate+' = ₹'+parseFloat(it.amount||0).toFixed(2)+'\n'; });
+  if(window._totals) msg += '\n*Grand Total: ₹'+window._totals.grand.toFixed(2)+'*';
   window.open('https://wa.me/?text='+encodeURIComponent(msg),'_blank');
 }
 </script>
