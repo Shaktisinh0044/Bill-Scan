@@ -1,5 +1,4 @@
-//BillScan — Secure Backend
-// API key hidden here via environment variable
+// BillScan — Secure Backend (v3 — stronger prompt + Type field)
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
@@ -11,36 +10,50 @@ export default async function handler(req, res) {
     const { images } = req.body;
     if (!images || images.length === 0) return res.status(400).json({ error: 'No images provided' });
 
-    const prompt = `You are an expert at reading handwritten Indian bike parts bills/invoices.
+    const prompt = `You are an EXPERT at reading handwritten Indian bike spare parts bills. You read messy Gujarati-influenced English handwriting daily. Read SLOWLY and CAREFULLY, line by line.
 
-This bill is from an auto parts supplier. Products are bike accessories with these EXACT category prefixes:
-- F/M = Front Mudguard
-- H/L VISOR = Headlight Visor  
-- T.P. = Tail Panel
-- S.P. = Side Panel
+THIS BILL IS FROM A BIKE PARTS WHOLESALER. Every line item has a TYPE (category) and PRODUCT name.
 
-READING RULES:
-1. Product name always starts with category prefix: "F/M CD DLX", "H/L VISOR PLATINA", "T.P. HF DLX", "S.P. SPL PRO"
-2. Quantity written as "15 Pc", "10 Pc", "2 Pc" — extract the NUMBER only
-3. Rate is price per piece — extract as number only
-4. Amount = qty x rate — extract as number only
-5. Common abbreviations: SPL=Splendor, DLX=Deluxe, N/M=New Model, A/W=All Weather, HF=Hero Honda HF
-6. If multiple pages, combine ALL items from ALL pages into one list
-7. Billing No may be written as "BILLING-XXX" or "BILL NO XXX"
+THE 9 VALID TYPES (memorize these — every item belongs to one):
+1. F/M (Front Mudguard)
+2. H/L VISOR (Headlight Visor)
+3. H.L. VISOR GLASS
+4. T.P. (Tail Panel)
+5. S.P. (Side Panel)
+6. FRONT COWL
+7. LOWER
+8. MITOR COVER
+9. CROME PATTI
 
-FIRST CHECK: If image has NO bill items (random photo, selfie, scenery) respond EXACTLY:
+HANDWRITING PATTERNS IN THESE BILLS:
+- Type is written at LEFT of each line, often abbreviated: "F/M", "Visor", "TIP" (=T.P.), "SIP" (=S.P.), "H/L"
+- Type may be written ONCE then ditto marks (") or dashes for following lines — those lines have SAME type as line above
+- Products: SPL/SPLANDOR=Splendor, DLX=Deluxe, N/M=New Model, A/W=All Weather, HF=Hero HF, CT100, PLATINA, PULSAR, DISCOVER, MAESTRO, PLEASURE, ACTIVA
+- Quantity: "15 Pc", "10 Pc", "7 Set", "2 set" — extract NUMBER only
+- Rate: per-piece price, usually 2-4 digits (85 to 1500 range)
+- Amount: qty × rate, at far right
+- Numbers: 1 and 7 look similar, 4 and 9 look similar — use qty×rate=amount to verify your reading
+- Bottom of bill may have: BILLING NO, TAX, TOTAL, party name, date
+
+SELF-CHECK RULE: For every line verify qty × rate = amount. If it does not match, re-read the numbers — one of them is wrong.
+
+MULTI-PAGE: If multiple images, they are pages of ONE bill. Combine ALL items in order.
+
+FIRST CHECK: If image is NOT a bill (selfie, scenery, random object) respond EXACTLY:
 {"error":"not_a_bill"}
 
-Otherwise respond ONLY with valid JSON, no markdown, no explanation:
+OTHERWISE respond ONLY valid JSON (no markdown, no explanation, no backticks):
 {
-  "party": "customer name if visible else empty string",
-  "date": "date if visible else empty string", 
+  "party": "customer/party name if visible else empty string",
+  "date": "date if visible else empty string",
   "invoice_no": "invoice number if visible else empty string",
   "billing_no": "billing number if visible else empty string",
   "items": [
-    {"sr": 1, "product": "EXACT product name with category prefix", "qty": 0, "rate": 0, "amount": 0}
+    {"sr": 1, "type": "ONE OF THE 9 VALID TYPES", "product": "product name WITHOUT the type prefix", "qty": 0, "rate": 0, "amount": 0}
   ]
-}`;
+}
+
+CRITICAL: "type" and "product" are SEPARATE fields. Example: handwritten "F/M CD DLX 15 Pc 165 2475" becomes {"sr":1,"type":"F/M","product":"CD DLX","qty":15,"rate":165,"amount":2475}`;
 
     const content = images.map(img => ({
       type: 'image',
@@ -57,7 +70,7 @@ Otherwise respond ONLY with valid JSON, no markdown, no explanation:
       },
       body: JSON.stringify({
         model: 'claude-haiku-4-5-20251001',
-        max_tokens: 2000,
+        max_tokens: 3000,
         messages: [{ role: 'user', content }]
       })
     });
@@ -74,4 +87,5 @@ Otherwise respond ONLY with valid JSON, no markdown, no explanation:
     return res.status(500).json({ error: e.message });
   }
 }
+
 
