@@ -5,20 +5,20 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>BillScan — App</title>
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=DM+Sans:wght@400;500;700&display=swap');
+  @import url('https://fonts.googleapis.com/css2?family=Manrope:wght@700;800&family=Inter:wght@400;500;600;700&display=swap');
   :root {
-    --ink:#1a2b4a;--ink-soft:#3d5278;--paper:#faf7f0;--paper-line:#e8e0d0;
-    --accent:#2563eb;--accent-warm:#f59e0b;--white:#ffffff;--gray:#6b7280;--green:#15803d;--red:#b91c1c;
+    --ink:#0b2545;--ink-soft:#5b6b85;--paper:#f3f7fd;--paper-line:#dbe6f7;
+    --accent:#1d5fd6;--accent-warm:#1d5fd6;--white:#ffffff;--gray:#5b6b85;--green:#15803d;--red:#b91c1c;
   }
   *{box-sizing:border-box;margin:0;padding:0;}
-  body{font-family:'DM Sans',system-ui,sans-serif;background:var(--paper);color:var(--ink);font-size:14px;line-height:1.5;}
+  body{font-family:'Inter',system-ui,sans-serif;background:var(--paper);color:var(--ink);font-size:14px;line-height:1.5;}
   nav{background:var(--white);border-bottom:1px solid var(--paper-line);}
   .nav-inner{display:flex;align-items:center;justify-content:space-between;padding:14px 24px;max-width:980px;margin:0 auto;}
-  .logo{font-family:'Fraunces',serif;font-size:20px;font-weight:700;display:flex;align-items:center;gap:8px;text-decoration:none;color:var(--ink);}
-  .logo-mark{width:24px;height:24px;background:var(--ink);border-radius:6px;position:relative;}
-  .logo-mark::after{content:'';position:absolute;inset:5px 5px auto 5px;height:2px;background:var(--accent-warm);box-shadow:0 4px 0 var(--white),0 7px 0 var(--accent-warm);}
+  .logo{font-family:'Manrope',sans-serif;font-size:20px;font-weight:700;display:flex;align-items:center;gap:8px;text-decoration:none;color:var(--ink);}
+  .logo-mark{width:26px;height:26px;border-radius:7px;background:linear-gradient(145deg,#1d5fd6,#13409e);position:relative;box-shadow:0 3px 9px rgba(29,95,214,.35);}
+  .logo-mark::after{content:'';position:absolute;top:8px;left:6px;right:6px;height:2.5px;background:#fff;border-radius:2px;box-shadow:0 4.5px 0 #fff;}
   .main{max-width:980px;margin:24px auto;padding:0 20px;}
-  .page-title{font-family:'Fraunces',serif;font-size:26px;font-weight:700;margin-bottom:4px;}
+  .page-title{font-family:'Manrope',sans-serif;font-size:26px;font-weight:700;margin-bottom:4px;}
   .page-sub{color:var(--ink-soft);margin-bottom:20px;font-size:14px;}
   .card{background:var(--white);border:1px solid var(--paper-line);border-radius:14px;padding:20px;margin-bottom:14px;}
   .card-label{display:flex;align-items:center;gap:8px;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--ink);margin-bottom:14px;}
@@ -52,7 +52,7 @@
   .totals{width:300px;margin-left:auto;}
   .totals .tr{display:flex;justify-content:space-between;padding:5px 0;font-size:13px;color:var(--ink-soft);}
   .totals .tr.disc{color:var(--green);}
-  .totals .tr.grand{font-family:'Fraunces',serif;font-size:20px;font-weight:700;color:var(--ink);border-top:2px solid var(--ink);margin-top:6px;padding-top:10px;}
+  .totals .tr.grand{font-family:'Manrope',sans-serif;font-size:20px;font-weight:700;color:var(--ink);border-top:2px solid var(--ink);margin-top:6px;padding-top:10px;}
   .meta-grid{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px;}
   .meta-grid .mg{flex:1;min-width:130px;}
   .meta-grid label{font-size:11px;color:var(--gray);text-transform:uppercase;letter-spacing:.04em;display:block;margin-bottom:3px;}
@@ -106,8 +106,7 @@
     <button class="hamburger" onclick="document.getElementById('nl').classList.toggle('open')">☰</button>
     <div class="nav-links" id="nl">
       <a href="index.html#home">Home</a>
-      <a href="index.html#about">About Us</a>
-      <a href="index.html#contact">Contact</a>
+      <a href="index.html#team">Team</a>
       <a href="app.html" class="nav-cta active-app">App</a>
     </div>
   </div>
@@ -176,7 +175,7 @@
   <div class="foot-inner">
     <div class="foot-bottom">
       <div style="margin-bottom:10px;">
-        <a href="index.html#home">Home</a> · <a href="index.html#about">About</a> · <a href="index.html#contact">Contact</a> · <a href="https://wa.me/919737998717" target="_blank">WhatsApp</a>
+        <a href="index.html#home">Home</a> · <a href="index.html#team">Team</a> · <a href="https://wa.me/919737998717" target="_blank">WhatsApp</a>
       </div>
       © 2026 BillScan · Made with ❤️ in Ahmedabad
     </div>
